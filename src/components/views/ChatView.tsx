@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -18,6 +19,21 @@ interface ChatViewProps {
 const defaultBotResponses = (t: Function) => [
   t('defaultResponse1'), t('defaultResponse2'), t('defaultResponse3'), t('defaultResponse4'), t('defaultResponse5')
 ];
+
+// Helper component to ensure timestamp is formatted on the client side
+const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
+  const [formattedTime, setFormattedTime] = useState<string>('...'); // Initial placeholder
+
+  useEffect(() => {
+    if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
+      setFormattedTime(timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    } else {
+      setFormattedTime(''); // Or some error string if needed
+    }
+  }, [timestamp]);
+
+  return <>{formattedTime}</>;
+};
 
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
@@ -141,7 +157,7 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
               >
                 <p className="text-sm whitespace-pre-wrap">{message.content}</p>
                 <p className="text-xs text-muted-foreground mt-1 text-right">
-                  {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  <ClientFormattedTime timestamp={message.timestamp} />
                 </p>
                 {message.type === 'bot' && message.sentiment && (
                    <Badge variant="outline" className="mt-1 text-xs flex items-center gap-1">
@@ -202,3 +218,5 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     </div>
   );
 }
+
+    

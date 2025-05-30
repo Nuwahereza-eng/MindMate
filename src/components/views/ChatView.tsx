@@ -31,12 +31,16 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
   return <>{formattedTime}</>;
 };
 
+const INITIAL_GREETING_ID = -1; // Stable ID for the initial greeting message
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
   const { t } = useLocalization();
-  const [messages, setMessages] = useState<Message[]>([
-    { id: Date.now(), type: 'bot', content: t('botGreeting'), timestamp: new Date() }
+  
+  // Initialize messages with the bot greeting using an initializer function for useState
+  const [messages, setMessages] = useState<Message[]>(() => [
+    { id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }
   ]);
+
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
@@ -48,9 +52,17 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     }
   }, [messages]);
   
+  // This useEffect updates the initial greeting message if the language changes AND it's the only message.
   useEffect(() => {
-    setMessages([{ id: Date.now(), type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
-  }, [t]);
+    setMessages(prevMessages => {
+      if (prevMessages.length === 1 && prevMessages[0].id === INITIAL_GREETING_ID && prevMessages[0].type === 'bot') {
+        // Only the initial greeting is present, update its content with the current translation
+        return [{ ...prevMessages[0], content: t('botGreeting') }];
+      }
+      // If other messages are present, or it's not the initial greeting, do not modify the chat history
+      return prevMessages;
+    });
+  }, [t]); // Re-run this effect if the translation function 't' changes
 
 
   const handleSendMessage = async () => {
@@ -86,7 +98,7 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       }
       
       const botMessage: Message = {
-        id: Date.now() + 1,
+        id: Date.now() + 1, // Ensure unique ID, different from user message and initial greeting
         type: 'bot',
         content: botResponseContent,
         timestamp: new Date(),

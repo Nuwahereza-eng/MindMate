@@ -77,16 +77,16 @@ export default function AfyaSyncApp() {
   };
 
   const handleNavigate = (view: string) => {
-    const navItem = NAV_ITEMS.find(item => item.view === view); // Intentionally look for view-based items
-    if (navItem && navItem.view) { // Ensure it's a view-based navigation
+    const navItem = NAV_ITEMS.find(item => item.view === view || (item.onClickAction && item.id === view) ); 
+    if (navItem && navItem.view) { 
       if (navItem.premium && !isPremium && user && user.name !== t('anonymousUser')) {
         setCurrentView('premium');
         toast({ title: t('accessPremiumFeature'), description: t('upgradeToAccess', {feature: t(navItem.labelKey) }) });
       } else {
-        setCurrentView(view);
+        setCurrentView(navItem.view);
       }
     }
-    // Always close mobile menu on any navigation or action click from sidebar
+    
     if (isMobileLayout) setIsMobileMenuOpen(false);
   };
   
@@ -107,7 +107,6 @@ export default function AfyaSyncApp() {
 
   const sidebarComponent = (
      <AppSidebar
-        user={user}
         isPremium={isPremium}
         navItems={NAV_ITEMS}
         currentView={currentView}
@@ -144,7 +143,7 @@ export default function AfyaSyncApp() {
             onSignIn={() => setShowAuthModal(true)}
             isMobileLayout={isMobileLayout}
         />
-        <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0 pb-24' : 'p-4 sm:px-6 sm:py-0 md:gap-8 pb-24'}`}>
+        <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0 pb-6' : 'p-4 sm:px-6 sm:py-0 md:gap-8 pb-24'}`}>
           {renderView()}
         </main>
       </div>
@@ -158,8 +157,6 @@ export default function AfyaSyncApp() {
         isOpen={showCrisisModal} 
         onOpenChange={setShowCrisisModal} 
       />
-
-      {/* Emergency FAB removed */}
     </div>
   );
 }

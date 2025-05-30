@@ -40,6 +40,7 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
 const INITIAL_GREETING_ID = -1; // Stable ID for the initial greeting message
 const CHAT_MESSAGES_STORAGE_KEY = 'afyasync-chatMessages';
 const MAX_CHAT_MESSAGES_STORAGE = 50;
+const CHAT_HISTORY_FOR_AI_LENGTH = 10; // How many recent messages to send to AI
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
   const { t, language } = useLocalization();
@@ -109,13 +110,22 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     };
     
     // Use a functional update to ensure we're working with the latest state
-    setMessages(prev => [...prev, userMessage]);
+    // and prepare history *before* adding the new user message to the state that will be passed to AI
     const currentInput = inputMessage;
     setInputMessage('');
+    
+    const historyToPass = messages
+      .slice(-CHAT_HISTORY_FOR_AI_LENGTH) 
+      .map(msg => ({
+        role: msg.type === 'user' ? ('user' as const) : ('model' as const),
+        content: msg.content,
+      }));
+
+    setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
 
     try {
-      const aiChatResult = await getAIChatResponse(currentInput, language);
+      const aiChatResult = await getAIChatResponse(currentInput, language, historyToPass);
       let botResponseContent = aiChatResult.botResponse;
       
       const lowerMessage = currentInput.toLowerCase();
@@ -125,7 +135,10 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       if (isCrisis) {
         onTriggerCrisisModal();
         if (!aiChatResult.isCrisisFromAI && isCrisisFromKeywords) {
-          botResponseContent = t('crisisWarning');
+          // If AI didn't detect crisis but keywords did, still use a crisis-aware message.
+          // The AI prompt is designed to output a crisis message itself if it detects it.
+          // This might override AI if it missed it but keywords caught it.
+           botResponseContent = t('crisisWarning');
         }
       }
       

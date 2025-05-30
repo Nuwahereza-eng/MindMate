@@ -27,9 +27,17 @@ export async function performSentimentAnalysis(text: string): Promise<SentimentA
 
 const CRISIS_MARKER = "CRISIS_DETECTED_BY_AI";
 
-export async function getAIChatResponse(userInput: string, languageCode: string): Promise<{ botResponse: string; isCrisisFromAI: boolean }> {
+export async function getAIChatResponse(
+  userInput: string,
+  languageCode: string,
+  chatHistory: Array<{ role: 'user' | 'model'; content: string }>
+): Promise<{ botResponse: string; isCrisisFromAI: boolean }> {
   try {
-    const input: MindMateChatInput = { message: userInput, languageCode };
+    const input: MindMateChatInput = {
+      message: userInput,
+      languageCode,
+      chatHistory: chatHistory.length > 0 ? chatHistory : undefined, // Pass undefined if history is empty
+    };
     const result = await getMindMateResponseFlow(input);
     
     let botResponse = result.response;
@@ -46,7 +54,7 @@ export async function getAIChatResponse(userInput: string, languageCode: string)
     // Fallback or rethrow
     return {
       botResponse: "I'm having a little trouble connecting right now. Please try again in a moment.",
-      isCrisisFromAI: false, // Default to false on error, client-side check will still run
+      isCrisisFromAI: false, 
     };
   }
 }

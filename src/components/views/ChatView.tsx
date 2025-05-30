@@ -24,7 +24,13 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
     if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
       setFormattedTime(timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     } else {
-      setFormattedTime(''); 
+      // Handle cases where timestamp might be a string after JSON.parse from localStorage
+      const d = new Date(timestamp);
+      if (d instanceof Date && !isNaN(d.getTime())) {
+        setFormattedTime(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+      } else {
+        setFormattedTime(''); 
+      }
     }
   }, [timestamp]);
 
@@ -32,37 +38,64 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
 };
 
 const INITIAL_GREETING_ID = -1; // Stable ID for the initial greeting message
+const CHAT_MESSAGES_STORAGE_KEY = 'afyasync-chatMessages';
+const MAX_CHAT_MESSAGES_STORAGE = 50;
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
   const { t, language } = useLocalization();
   
-  // Initialize messages with the bot greeting using an initializer function for useState
-  const [messages, setMessages] = useState<Message[]>(() => [
-    { id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }
-  ]);
-
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [voiceMode, setVoiceMode] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+    // Load messages from localStorage on mount
+    const storedMessagesRaw = localStorage.getItem(CHAT_MESSAGES_STORAGE_KEY);
+    if (storedMessagesRaw) {
+      try {
+        const parsedMessages: Message[] = JSON.parse(storedMessagesRaw).map((msg: any) => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp) // Ensure timestamp is a Date object
+        }));
+        setMessages(parsedMessages);
+      } catch (e) {
+        console.error("Error parsing stored chat messages:", e);
+        // Fallback to initial greeting if parsing fails
+        setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
+      }
+    } else {
+      // Initialize with the bot greeting if no stored messages
+      setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
     }
-  }, [messages]);
-  
-  // This useEffect updates the initial greeting message if the language changes AND it's the only message.
+  }, []); // Empty dependency array: run only on mount
+
+
+  // Update initial greeting if language changes AND it's the only message
   useEffect(() => {
     setMessages(prevMessages => {
       if (prevMessages.length === 1 && prevMessages[0].id === INITIAL_GREETING_ID && prevMessages[0].type === 'bot') {
-        // Only the initial greeting is present, update its content with the current translation
         return [{ ...prevMessages[0], content: t('botGreeting') }];
       }
-      // If other messages are present, or it's not the initial greeting, do not modify the chat history
       return prevMessages;
     });
-  }, [t]); // Re-run this effect if the translation function 't' changes
+  }, [t]); // Re-run if translation function 't' changes
+
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) { // Only save if there are messages (avoid saving empty initial state)
+      const limitedMessages = messages.slice(-MAX_CHAT_MESSAGES_STORAGE);
+      localStorage.setItem(CHAT_MESSAGES_STORAGE_KEY, JSON.stringify(limitedMessages));
+    }
+  }, [messages]);
+
+  // Scroll to bottom effect
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
+    }
+  }, [messages, isTyping]); // Add isTyping to dependencies to scroll when typing indicator appears
 
 
   const handleSendMessage = async () => {
@@ -74,31 +107,30 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       content: inputMessage,
       timestamp: new Date(),
     };
+    
+    // Use a functional update to ensure we're working with the latest state
     setMessages(prev => [...prev, userMessage]);
     const currentInput = inputMessage;
     setInputMessage('');
     setIsTyping(true);
 
     try {
-      // Get AI response, passing the current language
       const aiChatResult = await getAIChatResponse(currentInput, language);
       let botResponseContent = aiChatResult.botResponse;
       
-      // Determine crisis status
       const lowerMessage = currentInput.toLowerCase();
       const isCrisisFromKeywords = CRISIS_KEYWORDS.some(keyword => lowerMessage.includes(keyword));
       const isCrisis = aiChatResult.isCrisisFromAI || isCrisisFromKeywords;
 
       if (isCrisis) {
         onTriggerCrisisModal();
-        // If AI didn't provide a crisis-specific message but keywords triggered, use a default one.
         if (!aiChatResult.isCrisisFromAI && isCrisisFromKeywords) {
           botResponseContent = t('crisisWarning');
         }
       }
       
       const botMessage: Message = {
-        id: Date.now() + 1, // Ensure unique ID, different from user message and initial greeting
+        id: Date.now() + 1, 
         type: 'bot',
         content: botResponseContent,
         timestamp: new Date(),

@@ -1,19 +1,68 @@
+
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Zap, Award, Shield } from 'lucide-react'; // Replacing Heart, Star, Crown with alternatives
+import { Zap, Award, Shield, Sparkles, Loader2 } from 'lucide-react';
 import { useLocalization } from '@/context/LocalizationContext';
-import { BREATHING_EXERCISES, AFFIRMATIONS_KEYS } from '@/lib/constants';
+import { BREATHING_EXERCISES, type Message, type MoodEntry, type JournalEntry } from '@/lib/constants';
+import { getAIPersonalizedAffirmations } from '@/app/actions';
+import type { PersonalizedAffirmationInput } from '@/ai/flows/personalized-affirmation-flow';
+import { toast } from '@/hooks/use-toast';
 
 interface ExercisesViewProps {
   isPremium: boolean;
   onNavigateToPremium: () => void;
 }
 
+const MOOD_HISTORY_KEY = 'afyasync-moodHistory';
+const JOURNAL_ENTRIES_KEY = 'afyasync-journalEntries';
+const CHAT_MESSAGES_KEY = 'afyasync-chatMessages';
+
 export function ExercisesView({ isPremium, onNavigateToPremium }: ExercisesViewProps) {
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
+  const [personalizedAffirmations, setPersonalizedAffirmations] = useState<string[]>([]);
+  const [isLoadingAffirmations, setIsLoadingAffirmations] = useState(false);
+
+  const fetchAndSetPersonalizedAffirmations = async () => {
+    setIsLoadingAffirmations(true);
+    setPersonalizedAffirmations([]); // Clear previous affirmations
+
+    try {
+      const moodHistoryRaw = localStorage.getItem(MOOD_HISTORY_KEY);
+      const journalEntriesRaw = localStorage.getItem(JOURNAL_ENTRIES_KEY);
+      const chatMessagesRaw = localStorage.getItem(CHAT_MESSAGES_KEY);
+
+      const moodHistory: MoodEntry[] = moodHistoryRaw ? JSON.parse(moodHistoryRaw) : [];
+      const journalEntries: JournalEntry[] = journalEntriesRaw ? JSON.parse(journalEntriesRaw) : [];
+      const chatMessages: Message[] = chatMessagesRaw ? JSON.parse(chatMessagesRaw) : [];
+      
+      // Prepare data for the AI, ensuring timestamps are strings if that's what the AI flow expects
+      const inputData: PersonalizedAffirmationInput = {
+        moodHistory: moodHistory.slice(0, 7).map(m => ({...m, date: m.date.toString()})), // last 7
+        journalEntries: journalEntries.slice(0, 3).map(j => ({...j, timestamp: j.timestamp.toString(), date: j.date.toString()})), // last 3
+        chatHistory: chatMessages.slice(-15).map(c => ({...c, timestamp: c.timestamp.toString()})), // last 15
+        languageCode: language,
+      };
+
+      const result = await getAIPersonalizedAffirmations(inputData);
+      if (result.affirmations && result.affirmations.length > 0) {
+        setPersonalizedAffirmations(result.affirmations);
+        toast({ title: t('affirmationsGeneratedSuccess') });
+      } else {
+        setPersonalizedAffirmations([t('noAffirmationsGenerated')]);
+        toast({ title: t('affirmationsGenerationError'), variant: "destructive" });
+      }
+    } catch (error) {
+      console.error("Error fetching personalized affirmations:", error);
+      setPersonalizedAffirmations([t('errorFetchingAffirmations')]);
+      toast({ title: t('affirmationsGenerationError'), description: (error as Error).message, variant: "destructive" });
+    } finally {
+      setIsLoadingAffirmations(false);
+    }
+  };
+
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -44,16 +93,30 @@ export function ExercisesView({ isPremium, onNavigateToPremium }: ExercisesViewP
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <Award className="mr-2 h-5 w-5 text-yellow-500" />
-              {t('dailyAffirmations')}
+              <Sparkles className="mr-2 h-5 w-5 text-yellow-500" />
+              {t('personalizedAffirmations')}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
-            {AFFIRMATIONS_KEYS.map((key) => (
-              <div key={key} className="p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
-                <p className="text-center font-medium italic text-sm">"{t(key)}"</p>
-              </div>
-            ))}
+            <Button onClick={fetchAndSetPersonalizedAffirmations} disabled={isLoadingAffirmations} className="w-full mb-4">
+              {isLoadingAffirmations ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t('generatingAffirmations')}...
+                </>
+              ) : (
+                t('generateMyAffirmations')
+              )}
+            </Button>
+            {personalizedAffirmations.length > 0 ? (
+              personalizedAffirmations.map((affirmation, index) => (
+                <div key={index} className="p-3 bg-gradient-to-r from-primary/10 to-accent/10 rounded-lg">
+                  <p className="text-center font-medium italic text-sm">"{affirmation}"</p>
+                </div>
+              ))
+            ) : (
+              !isLoadingAffirmations && <p className="text-sm text-muted-foreground text-center">{t('clickToGenerateAffirmations')}</p>
+            )}
           </CardContent>
         </Card>
       </div>

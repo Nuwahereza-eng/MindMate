@@ -3,6 +3,7 @@
 
 import { analyzeSentiment as analyzeSentimentFlow, type SentimentAnalysisInput, type SentimentAnalysisOutput } from '@/ai/flows/sentiment-analysis';
 import { getMindMateResponse as getMindMateResponseFlow, type MindMateChatInput, type MindMateChatOutput } from '@/ai/flows/mindmate-chat-flow';
+import { generatePersonalizedAffirmations as generatePersonalizedAffirmationsFlow, type PersonalizedAffirmationInput, type PersonalizedAffirmationOutput } from '@/ai/flows/personalized-affirmation-flow';
 import { CRISIS_KEYWORDS } from '@/lib/constants';
 
 export async function performSentimentAnalysis(text: string): Promise<SentimentAnalysisOutput & { isCrisis: boolean }> {
@@ -50,3 +51,26 @@ export async function getAIChatResponse(userInput: string, languageCode: string)
   }
 }
 
+export async function getAIPersonalizedAffirmations(input: PersonalizedAffirmationInput): Promise<PersonalizedAffirmationOutput> {
+  try {
+    const result = await generatePersonalizedAffirmationsFlow(input);
+    return result;
+  } catch (error) {
+    console.error("Error in getAIPersonalizedAffirmations:", error);
+    // Fallback affirmations
+    const fallbackAffirmations = [
+      "You are valued and strong.",
+      "Each day brings new possibilities.",
+      "Remember to be gentle with yourself."
+    ];
+    // Attempt to translate fallback based on language code, very basic
+    if (input.languageCode === 'lg') {
+       return { affirmations: ["Oli wa muwendo era wa maanyi.", "Buli lunaku luleeta emikisa mipya.", "Jjukira okubeera omukkakkamu gy'oli."] };
+    } else if (input.languageCode === 'sw') {
+       return { affirmations: ["Unathaminiwa na una nguvu.", "Kila siku huleta fursa mpya.", "Kumbuka kuwa mpole kwako mwenyewe."] };
+    } else if (input.languageCode === 'run') {
+        return { affirmations: ["Oine omuhendo kandi oine amaani.", "Buri eizooba nirireeta emikisa misya.", "Ijukira okuba omujwahuki ahariiwe."] };
+    }
+    return { affirmations: fallbackAffirmations };
+  }
+}

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Award, Users // Added Users icon
+  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Award, Users
 } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -29,8 +29,8 @@ const NAV_ITEMS: NavItemType[] = [
   { id: 'mood', labelKey: 'navMood', icon: Heart, view: 'mood' },
   { id: 'journal', labelKey: 'navJournal', icon: BookOpen, view: 'journal' },
   { id: 'exercises', labelKey: 'navWellness', icon: Zap, view: 'exercises' },
-  { id: 'therapists', labelKey: 'navTherapists', icon: Users, premium: true, view: 'therapists' }, // Restored Therapists with Users icon
-  { id: 'premium', labelKey: 'navPremium', icon: Award, view: 'premium' }, // Using Award for Premium
+  { id: 'therapists', labelKey: 'navTherapists', icon: Users, premium: true, view: 'therapists' },
+  { id: 'premium', labelKey: 'navPremium', icon: Award, view: 'premium' },
   { id: 'settings', labelKey: 'navSettings', icon: Settings, view: 'settings' },
 ];
 
@@ -106,7 +106,6 @@ export default function AfyaSyncApp() {
         navItems={NAV_ITEMS}
         currentView={currentView}
         onNavigate={handleNavigate}
-        // onSignIn prop is removed as the sign-in button in sidebar is removed
         className="h-full border-r bg-background" 
       />
   );
@@ -115,7 +114,7 @@ export default function AfyaSyncApp() {
     <div className="flex flex-row min-h-screen w-full bg-muted/40">
       {/* Desktop Sidebar */}
       {!isMobileLayout && (
-        <div className="w-64 flex-shrink-0 hidden md:block"> {/* Fixed width for desktop sidebar */}
+        <div className="w-64 flex-shrink-0 hidden md:block">
           {sidebarComponent}
         </div>
       )}
@@ -129,8 +128,8 @@ export default function AfyaSyncApp() {
               {/* Trigger is now part of AppHeader, this div is a placeholder for Sheet logic */}
               <div />
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 sm:w-72">
-               {sidebarComponent} {/* Re-use the same sidebar component instance */}
+            <SheetContent side="left" className="p-0 w-64 sm:w-72" title={t('appName')}>
+               {sidebarComponent}
             </SheetContent>
           </Sheet>
         )}

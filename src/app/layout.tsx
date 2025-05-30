@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
@@ -10,7 +11,7 @@ const geistSans = GeistSans;
 const geistMono = GeistMono;
 
 export const metadata: Metadata = {
-  title: 'AfyaSync - Your Mental Wellness Companion',
+  title: 'MindMate - Your Mental Wellness Companion',
   description: 'AI-powered mental health support, mood tracking, journaling, and more.',
 };
 

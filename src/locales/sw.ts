@@ -1,5 +1,6 @@
+
 export const sw = {
-  appName: "AfyaSync", // Keep or translate
+  appName: "MindMate", // Keep or translate
   tagline: "Mwenzako wa Ustawi wa Akili",
   // Nav
   navChat: "Piga Soga", // "Chat"
@@ -24,7 +25,7 @@ export const sw = {
   continueAnonymously: "Endelea bila kujitambulisha",
   // Chat
   chatPlaceholder: "Andika ujumbe wako...",
-  botGreeting: "Habari! Mimi ni AfyaSync, mwenzako mwenye huruma kwa afya ya akili. Unajisikiaje leo?",
+  botGreeting: "Habari! Mimi ni MindMate, mwenzako mwenye huruma kwa afya ya akili. Unajisikiaje leo?",
   crisisWarning: "Nina wasiwasi sana kuhusu ulichoshiriki. Hisia zako ni halali, lakini nataka kuhakikisha unapata usaidizi unaohitaji sasa hivi. Tafadhali fikiria kuwasiliana na nambari ya dharura - wana wataalamu waliofunzwa wanaoweza kusaidia.",
   feelingAnxiousResponse: "Naelewa unajisikia kuwa na wasiwasi. Hilo ni jambo la kawaida sana. Ungependa nikuongoze kupitia zoezi la kupumua, au ungependa kuzungumza kuhusu kinachokufanya ujisikie hivi?",
   feelingSadResponse: "Nasikia unapitia wakati mgumu. Inahitaji ujasiri kushiriki hisia hizi. Kumbuka kuwa unachopitia ni cha muda, hata kama haihisi hivyo sasa. Nini kingekuwa cha msaada zaidi kwako leo?",
@@ -88,4 +89,6 @@ export const sw = {
   premiumMember: "Mwanachama wa Kulipia",
   theme: "Mandhari",
   emergencySupport: "Msaada wa Dharura",
+  accessPremiumFeature: "Fikia Kipengele cha Kulipia",
+  upgradeToAccess: "Tafadhali boresha hadi Kulipia ili kufikia {{feature}}.",
 };

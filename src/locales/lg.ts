@@ -1,5 +1,6 @@
+
 export const lg = {
-  appName: "AfyaSync", // Keep or translate if a common term exists
+  appName: "MindMate", // Keep or translate if a common term exists
   tagline: "Omwoleso gwo obulamu bwo obw'omwoyo",
   // Nav
   navChat: "Kuba nange", // "Chat with me" or "Emboozi" (Conversation)
@@ -24,7 +25,7 @@ export const lg = {
   continueAnonymously: "Yingirira nga tomanyise",
   // Chat
   chatPlaceholder: "Wandika obubaka bwo...",
-  botGreeting: "Mbalamusizza! Nze AfyaSync, mukwano gwo akufaako mu by'obulamu bw'omwoyo. Otya leero?",
+  botGreeting: "Mbalamusizza! Nze MindMate, mukwano gwo akufaako mu by'obulamu bw'omwoyo. Otya leero?",
   crisisWarning: "Ndi mweraliikirivu nnyo olw'ebyo by'ogambye. Enneewulira yo ntegeerekeka, naye njagala okakasa nti ofuna obuyambi bw'owetaagawo. Funa abakugu mu kuyamba abali mu bizibu.",
   // ... other translations will be similar to English for now
   feelingAnxiousResponse: "Ntegedde owulira nga oli mweraliikirivu. Kino kya bulijjo. Oyagala nkuyise mu kazannyirizi k'okussa obulungi, oba oyagala twogere ku ekyo ekikweraliikiriza?",
@@ -89,4 +90,6 @@ export const lg = {
   premiumMember: "Mmemba ow'Omuwendo",
   theme: "Endabika",
   emergencySupport: "Obuyambi obw'Emergency",
+  accessPremiumFeature: "Funa Eby'omuwendo",
+  upgradeToAccess: "Olina okulongoosa okufuna {{feature}}.",
 };

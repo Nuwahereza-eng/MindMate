@@ -1,12 +1,13 @@
+
 export const en = {
-  appName: "AfyaSync",
+  appName: "MindMate",
   tagline: "Your Mental Wellness Companion",
   // Nav
   navChat: "Chat",
   navMood: "Mood",
   navJournal: "Journal",
   navWellness: "Wellness",
-  navTherapists: "Therapists",
+  navTherapists: "Therapists", // Kept for key consistency, though not used in nav
   navPremium: "Premium",
   navSettings: "Settings",
   // Auth
@@ -24,7 +25,7 @@ export const en = {
   continueAnonymously: "Continue anonymously",
   // Chat
   chatPlaceholder: "Type your message...",
-  botGreeting: "Hello! I'm AfyaSync, your compassionate mental health companion. How are you feeling today?",
+  botGreeting: "Hello! I'm MindMate, your compassionate mental health companion. How are you feeling today?",
   crisisWarning: "I'm really concerned about what you've shared. Your feelings are valid, but I want to make sure you get the support you need right now. Please consider reaching out to a crisis helpline - they have trained professionals who can help.",
   feelingAnxiousResponse: "I understand you're feeling anxious. That's a very common experience. Would you like me to guide you through a breathing exercise, or would you prefer to talk about what's making you feel this way?",
   feelingSadResponse: "I hear that you're going through a difficult time. It takes courage to share these feelings. Remember that what you're experiencing is temporary, even though it might not feel that way right now. What would be most helpful for you today?",
@@ -113,7 +114,7 @@ export const en = {
   upgradeNow: "Upgrade Now",
   moneyBackGuarantee: "30-Day Money Back Guarantee",
   moneyBackGuaranteeDesc: "Try Premium risk-free. If you're not completely satisfied, we'll refund your full payment within 30 days.",
-  premiumUpgradeSuccess: "Welcome to AfyaSync Premium!",
+  premiumUpgradeSuccess: "Welcome to MindMate Premium!",
   // Settings
   settingsTitle: "Settings",
   appearance: "Appearance",
@@ -143,4 +144,6 @@ export const en = {
   premiumMember: "Premium Member",
   theme: "Theme",
   emergencySupport: "Emergency Support",
+  accessPremiumFeature: "Access Premium Feature",
+  upgradeToAccess: "Please upgrade to Premium to access {{feature}}.",
 };

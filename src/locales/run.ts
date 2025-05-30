@@ -1,5 +1,6 @@
+
 export const run = {
-  appName: "AfyaSync", // Keep or translate
+  appName: "MindMate", // Keep or translate
   tagline: "Omuhwezi Waawe Ow'oburungi Bw'obwongo",
   // Nav
   navChat: "Ganiira", // "Chat"
@@ -24,7 +25,7 @@ export const run = {
   continueAnonymously: "Gumisiriza otamanyirwe",
   // Chat
   chatPlaceholder: "Handiika obutumwa bwaawe...",
-  botGreeting: "Oraire ota! Ndi AfyaSync, omuhwezi waawe akufaaho aha by'oburungi bw'obwongo. Orire ota erizooba?",
+  botGreeting: "Oraire ota! Ndi MindMate, omuhwezi waawe akufaaho aha by'oburungi bw'obwongo. Orire ota erizooba?",
   crisisWarning: "Ninyeraliikirira munonga ahabw'ebyo ebi wagambire. Okucondooza kwaawe nikwetegyerezibwa, kwonka ninyenda kuhakikisha ngu nobona obuhwezi obu orikwenda hati. Tekereza okusherura abakugu omu kuhwera abari omu bizibu.",
   feelingAnxiousResponse: "Ninyetegereza ngu noyehuliira oine obwoba. Eki n'ekyabulijo. Noyenda nkuhwere omu kazanyo k'okwetsya gye, nari noyenda tuganiire aha kikureetera okwehurira otyo?",
   feelingSadResponse: "Nimpuriira ngu orimu omu biro bigumire. Nikyetengwa obumanzi kugamba aha kucondooza nk'oku. Ijukira ngu eki orimu n'eky'obunake. Niki ekirikubaasa kukuhwera erizooba?",
@@ -88,4 +89,6 @@ export const run = {
   premiumMember: "Memba w'Omuhendo",
   theme: "Endabika",
   emergencySupport: "Obuhwezi bw'Emergency",
+  accessPremiumFeature: "Funa Eby'omuhendo",
+  upgradeToAccess: "Oine kuhindura Premium okufuna {{feature}}.",
 };

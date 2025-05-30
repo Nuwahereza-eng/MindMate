@@ -52,7 +52,7 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     }
   }, [messages]);
   
-  // Reset greeting if language changes
+  // Reset greeting if language changes or appName changes via t function
   useEffect(() => {
     setMessages([{ id: Date.now(), type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
   }, [t]);
@@ -144,8 +144,8 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
             >
               {message.type === 'bot' && (
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/40x40/9B59B6/FFFFFF.png?text=A" alt="AfyaSync Bot" data-ai-hint="bot avatar"/>
-                  <AvatarFallback>A</AvatarFallback>
+                  <AvatarImage src="https://placehold.co/40x40/9B59B6/FFFFFF.png?text=M" alt="MindMate Bot" data-ai-hint="bot avatar"/>
+                  <AvatarFallback>M</AvatarFallback>
                 </Avatar>
               )}
               <div
@@ -177,8 +177,8 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
           {isTyping && (
             <div className="flex items-end gap-2 justify-start">
                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/40x40/9B59B6/FFFFFF.png?text=A" alt="AfyaSync Bot" data-ai-hint="bot avatar"/>
-                  <AvatarFallback>A</AvatarFallback>
+                  <AvatarImage src="https://placehold.co/40x40/9B59B6/FFFFFF.png?text=M" alt="MindMate Bot" data-ai-hint="bot avatar"/>
+                  <AvatarFallback>M</AvatarFallback>
                 </Avatar>
               <div className="max-w-[70%] rounded-lg px-4 py-3 shadow-sm bg-card text-card-foreground">
                 <div className="flex space-x-1">
@@ -218,5 +218,3 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     </div>
   );
 }
-
-    

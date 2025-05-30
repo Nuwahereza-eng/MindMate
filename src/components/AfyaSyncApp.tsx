@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -43,10 +44,9 @@ export default function AfyaSyncApp() {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isMobileLayout = useIsMobile(); // From existing hook
+  const isMobileLayout = useIsMobile(); 
 
   useEffect(() => {
-    // Attempt to load user from localStorage (simple persistence)
     const storedUser = localStorage.getItem('afyasync-user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
@@ -60,7 +60,7 @@ export default function AfyaSyncApp() {
   const handleAuthentication = (authenticatedUser: UserProfile) => {
     setUser(authenticatedUser);
     localStorage.setItem('afyasync-user', JSON.stringify(authenticatedUser));
-    if(authenticatedUser.name !== t('anonymousUser')) { // Simple check if not anonymous
+    if(authenticatedUser.name !== t('anonymousUser')) { 
         toast({ title: t('welcomeBack') + `, ${authenticatedUser.name}!` });
     }
   };
@@ -98,7 +98,8 @@ export default function AfyaSyncApp() {
     }
   };
 
-  const SidebarContent = (
+  // Sidebar component instance
+  const sidebarComponent = (
      <AppSidebar
         user={user}
         isPremium={isPremium}
@@ -106,25 +107,33 @@ export default function AfyaSyncApp() {
         currentView={currentView}
         onNavigate={handleNavigate}
         onSignIn={() => setShowAuthModal(true)}
-        className="h-full border-r bg-background"
+        className="h-full border-r bg-background" // AppSidebar styles itself to fill height
       />
   );
 
   return (
-    <div className="flex min-h-screen w-full flex-col bg-muted/40">
-      {!isMobileLayout && SidebarContent}
-      <div className={`flex flex-col sm:gap-4 ${isMobileLayout ? '' : 'sm:py-4 sm:pl-14 md:pl-64'}`}> {/* Adjust pl for sidebar width */}
-        {isMobileLayout ? (
+    <div className="flex flex-row min-h-screen w-full bg-muted/40">
+      {/* Desktop Sidebar */}
+      {!isMobileLayout && (
+        <div className="w-64 flex-shrink-0 hidden md:block"> {/* Fixed width for desktop sidebar */}
+          {sidebarComponent}
+        </div>
+      )}
+
+      {/* Main Content Area */}
+      <div className={`flex-1 flex flex-col sm:gap-4 ${isMobileLayout ? '' : 'sm:py-4'}`}>
+        {/* Mobile Sidebar (Sheet) */}
+        {isMobileLayout && (
            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              {/* This button is part of the header now */}
+              {/* Trigger is now part of AppHeader, this div is a placeholder for Sheet logic */}
               <div />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64 sm:w-72">
-               {SidebarContent}
+               {sidebarComponent} {/* Re-use the same sidebar component instance */}
             </SheetContent>
           </Sheet>
-        ) : null}
+        )}
 
         <AppHeader
             user={user}

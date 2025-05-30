@@ -8,27 +8,24 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLocalization } from '@/context/LocalizationContext';
-import { performSentimentAnalysis } from '@/app/actions';
+import { performSentimentAnalysis, getAIChatResponse } from '@/app/actions';
 import type { Message } from '@/lib/constants';
 import { Badge } from '@/components/ui/badge';
+import { CRISIS_KEYWORDS } from '@/lib/constants';
 
 interface ChatViewProps {
   onTriggerCrisisModal: () => void;
 }
 
-const defaultBotResponses = (t: Function) => [
-  t('defaultResponse1'), t('defaultResponse2'), t('defaultResponse3'), t('defaultResponse4'), t('defaultResponse5')
-];
-
 // Helper component to ensure timestamp is formatted on the client side
 const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
-  const [formattedTime, setFormattedTime] = useState<string>('...'); // Initial placeholder
+  const [formattedTime, setFormattedTime] = useState<string>('...'); 
 
   useEffect(() => {
     if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
       setFormattedTime(timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     } else {
-      setFormattedTime(''); // Or some error string if needed
+      setFormattedTime(''); 
     }
   }, [timestamp]);
 
@@ -37,13 +34,13 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
 
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
-  const { t, language } = useLocalization(); // language can be used to tailor AI responses if needed
+  const { t, language } = useLocalization();
   const [messages, setMessages] = useState<Message[]>([
     { id: Date.now(), type: 'bot', content: t('botGreeting'), timestamp: new Date() }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [voiceMode, setVoiceMode] = useState(false); // Placeholder for voice functionality
+  const [voiceMode, setVoiceMode] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -52,38 +49,10 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     }
   }, [messages]);
   
-  // Reset greeting if language changes or appName changes via t function
   useEffect(() => {
     setMessages([{ id: Date.now(), type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
   }, [t]);
 
-
-  const generateAIResponse = (userMessageContent: string, sentimentResult: Awaited<ReturnType<typeof performSentimentAnalysis>>) => {
-    const lowerMessage = userMessageContent.toLowerCase();
-
-    if (sentimentResult.isCrisis) {
-      onTriggerCrisisModal();
-      return t('crisisWarning');
-    }
-    
-    // Example responses based on keywords and sentiment (can be expanded)
-    if (lowerMessage.includes(t('anxiousKeyword')||'anxious') || lowerMessage.includes(t('anxietyKeyword')||'anxiety')) {
-      return t('feelingAnxiousResponse');
-    }
-    if (lowerMessage.includes(t('sadKeyword')||'sad') || lowerMessage.includes(t('depressedKeyword')||'depressed')) {
-      return t('feelingSadResponse');
-    }
-    if (lowerMessage.includes(t('stressedKeyword')||'stressed') || lowerMessage.includes(t('overwhelmedKeyword')||'overwhelmed')) {
-      return t('feelingStressedResponse');
-    }
-    if (lowerMessage.includes(t('breathingKeyword')||'breathing') || lowerMessage.includes(t('exerciseKeyword')||'exercise')) {
-      return t('offerBreathingExerciseResponse');
-    }
-
-    // Fallback to random default response
-    const responses = defaultBotResponses(t);
-    return responses[Math.floor(Math.random() * responses.length)];
-  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -100,9 +69,25 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     setIsTyping(true);
 
     try {
+      // Get AI response
+      const aiChatResult = await getAIChatResponse(currentInput);
+      let botResponseContent = aiChatResult.botResponse;
+
+      // Perform sentiment analysis (can be integrated into main AI flow later)
       const sentimentResult = await performSentimentAnalysis(currentInput);
       
-      const botResponseContent = generateAIResponse(currentInput, sentimentResult);
+      // Determine crisis status
+      const lowerMessage = currentInput.toLowerCase();
+      const isCrisisFromKeywords = CRISIS_KEYWORDS.some(keyword => lowerMessage.includes(keyword));
+      const isCrisis = aiChatResult.isCrisisFromAI || isCrisisFromKeywords;
+
+      if (isCrisis) {
+        onTriggerCrisisModal();
+        // If AI didn't provide a crisis-specific message but keywords triggered, use a default one.
+        if (!aiChatResult.isCrisisFromAI && isCrisisFromKeywords) {
+          botResponseContent = t('crisisWarning');
+        }
+      }
       
       const botMessage: Message = {
         id: Date.now() + 1,

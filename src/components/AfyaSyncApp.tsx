@@ -19,7 +19,7 @@ import { CrisisModal } from '@/components/modals/CrisisModal';
 import { Button } from '@/components/ui/button';
 import { useLocalization } from '@/context/LocalizationContext';
 import type { UserProfile, NavItemType } from '@/lib/constants';
-import { useIsMobile } from '@/hooks/use-mobile'; // Using existing hook
+import { useIsMobile } from '@/hooks/use-mobile'; 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "@/hooks/use-toast";
 
@@ -158,7 +158,7 @@ export default function AfyaSyncApp() {
       />
 
       {/* Emergency FAB */}
-      <div className="fixed bottom-6 right-6 z-50">
+      <div className="fixed bottom-6 right-20 md:right-24 z-50">
         <Button
           size="icon"
           variant="destructive"

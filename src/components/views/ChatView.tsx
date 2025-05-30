@@ -2,15 +2,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Mic, MicOff, Smile, Frown, Meh } from 'lucide-react';
+import { Send, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLocalization } from '@/context/LocalizationContext';
-import { performSentimentAnalysis, getAIChatResponse } from '@/app/actions';
+import { getAIChatResponse } from '@/app/actions';
 import type { Message } from '@/lib/constants';
-import { Badge } from '@/components/ui/badge';
 import { CRISIS_KEYWORDS } from '@/lib/constants';
 
 interface ChatViewProps {
@@ -34,7 +33,7 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
 
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
-  const { t, language } = useLocalization();
+  const { t } = useLocalization();
   const [messages, setMessages] = useState<Message[]>([
     { id: Date.now(), type: 'bot', content: t('botGreeting'), timestamp: new Date() }
   ]);
@@ -72,9 +71,6 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       // Get AI response
       const aiChatResult = await getAIChatResponse(currentInput);
       let botResponseContent = aiChatResult.botResponse;
-
-      // Perform sentiment analysis (can be integrated into main AI flow later)
-      const sentimentResult = await performSentimentAnalysis(currentInput);
       
       // Determine crisis status
       const lowerMessage = currentInput.toLowerCase();
@@ -94,7 +90,6 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
         type: 'bot',
         content: botResponseContent,
         timestamp: new Date(),
-        sentiment: `${t('sentimentPrefix')} ${sentimentResult.sentiment} (Score: ${sentimentResult.score.toFixed(2)})`
       };
       setMessages(prev => [...prev, botMessage]);
 
@@ -112,11 +107,6 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     }
   };
   
-  const getSentimentIcon = (score: number) => {
-    if (score > 0.3) return <Smile className="h-4 w-4 text-green-500" />;
-    if (score < -0.3) return <Frown className="h-4 w-4 text-red-500" />;
-    return <Meh className="h-4 w-4 text-yellow-500" />;
-  }
 
   return (
     <div className="flex flex-col h-full p-4">
@@ -144,12 +134,6 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
                 <p className="text-xs text-muted-foreground mt-1 text-right">
                   <ClientFormattedTime timestamp={message.timestamp} />
                 </p>
-                {message.type === 'bot' && message.sentiment && (
-                   <Badge variant="outline" className="mt-1 text-xs flex items-center gap-1">
-                     {getSentimentIcon(parseFloat(message.sentiment.split('Score: ')[1]?.replace(')','')) || 0)}
-                     {message.sentiment}
-                   </Badge>
-                )}
               </div>
                {message.type === 'user' && (
                 <Avatar className="h-8 w-8">

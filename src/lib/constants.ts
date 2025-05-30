@@ -38,8 +38,8 @@ export type NavItemType = {
   labelKey: string;
   icon: React.ElementType;
   premium?: boolean;
-  view?: string; // Made optional
-  onClickAction?: () => void; // Added for actions like opening a modal
+  view?: string; 
+  onClickAction?: () => void; 
 };
 
 export type UserProfile = {
@@ -53,7 +53,6 @@ export type Message = {
   type: 'user' | 'bot' | 'system';
   content: string;
   timestamp: Date;
-  sentiment?: string; // Optional: to display sentiment feedback
 };
 
 export type MoodEntry = {

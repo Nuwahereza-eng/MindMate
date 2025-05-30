@@ -162,12 +162,12 @@ export default function AfyaSyncApp() {
         <Button
           size="icon"
           variant="destructive"
-          className="rounded-full w-14 h-14 shadow-lg hover:scale-110 transition-transform"
+          className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform"
           onClick={() => setShowCrisisModal(true)}
           title={t('emergencySupport')}
           aria-label={t('emergencySupport')}
         >
-          <Phone className="h-6 w-6" />
+          <Phone className="h-5 w-5" />
         </Button>
       </div>
     </div>

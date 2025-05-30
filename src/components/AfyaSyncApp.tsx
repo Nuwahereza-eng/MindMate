@@ -142,7 +142,7 @@ export default function AfyaSyncApp() {
             onSignIn={() => setShowAuthModal(true)}
             isMobileLayout={isMobileLayout}
         />
-        <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0' : 'p-4 sm:px-6 sm:py-0 md:gap-8'}`}>
+        <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0 pb-24' : 'p-4 sm:px-6 sm:py-0 md:gap-8 pb-24'}`}>
           {renderView()}
         </main>
       </div>

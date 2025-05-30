@@ -10,6 +10,7 @@ export const run = {
   navTherapists: "Abahwezi", // "Helpers/Therapists"
   navPremium: "Eby'omuhendo", // "Valuable/Premium"
   navSettings: "Entebeekanisa", // "Arrangements/Settings"
+  navEmergencySupport: "Obuhwezi bw'Emergency", // Added
   // Auth
   signIn: "Taahamu",
   signUp: "Yehndiikise",
@@ -88,7 +89,7 @@ export const run = {
   freeMember: "Memba w'Obusa",
   premiumMember: "Memba w'Omuhendo",
   theme: "Endabika",
-  emergencySupport: "Obuhwezi bw'Emergency",
+  // emergencySupport: "Obuhwezi bw'Emergency", // Already in navEmergencySupport
   accessPremiumFeature: "Funa Eby'omuhendo",
   upgradeToAccess: "Oine kuhindura Premium okufuna {{feature}}.",
 };

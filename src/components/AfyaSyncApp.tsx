@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Award, Users
+  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, ShieldAlert, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Award, Users
 } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -24,16 +24,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "@/hooks/use-toast";
 
 
-const NAV_ITEMS: NavItemType[] = [
-  { id: 'chat', labelKey: 'navChat', icon: MessageCircle, view: 'chat' },
-  { id: 'mood', labelKey: 'navMood', icon: Heart, view: 'mood' },
-  { id: 'journal', labelKey: 'navJournal', icon: BookOpen, view: 'journal' },
-  { id: 'exercises', labelKey: 'navWellness', icon: Zap, view: 'exercises' },
-  { id: 'therapists', labelKey: 'navTherapists', icon: Users, premium: true, view: 'therapists' },
-  { id: 'premium', labelKey: 'navPremium', icon: Award, view: 'premium' },
-  { id: 'settings', labelKey: 'navSettings', icon: Settings, view: 'settings' },
-];
-
 export default function AfyaSyncApp() {
   const { t } = useLocalization();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -45,6 +35,22 @@ export default function AfyaSyncApp() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isMobileLayout = useIsMobile(); 
+
+  const NAV_ITEMS: NavItemType[] = [
+    { id: 'chat', labelKey: 'navChat', icon: MessageCircle, view: 'chat' },
+    { id: 'mood', labelKey: 'navMood', icon: Heart, view: 'mood' },
+    { id: 'journal', labelKey: 'navJournal', icon: BookOpen, view: 'journal' },
+    { id: 'exercises', labelKey: 'navWellness', icon: Zap, view: 'exercises' },
+    { id: 'therapists', labelKey: 'navTherapists', icon: Users, premium: true, view: 'therapists' },
+    { id: 'premium', labelKey: 'navPremium', icon: Award, view: 'premium' },
+    { 
+      id: 'emergency', 
+      labelKey: 'navEmergencySupport', 
+      icon: ShieldAlert, 
+      onClickAction: () => setShowCrisisModal(true),
+    },
+    { id: 'settings', labelKey: 'navSettings', icon: Settings, view: 'settings' },
+  ];
 
   useEffect(() => {
     const storedUser = localStorage.getItem('afyasync-user');
@@ -71,8 +77,8 @@ export default function AfyaSyncApp() {
   };
 
   const handleNavigate = (view: string) => {
-    const navItem = NAV_ITEMS.find(item => item.view === view);
-    if (navItem) {
+    const navItem = NAV_ITEMS.find(item => item.view === view); // Intentionally look for view-based items
+    if (navItem && navItem.view) { // Ensure it's a view-based navigation
       if (navItem.premium && !isPremium && user && user.name !== t('anonymousUser')) {
         setCurrentView('premium');
         toast({ title: t('accessPremiumFeature'), description: t('upgradeToAccess', {feature: t(navItem.labelKey) }) });
@@ -80,10 +86,11 @@ export default function AfyaSyncApp() {
         setCurrentView(view);
       }
     }
+    // Always close mobile menu on any navigation or action click from sidebar
     if (isMobileLayout) setIsMobileMenuOpen(false);
   };
   
-  const currentViewNavItem = useMemo(() => NAV_ITEMS.find(item => item.view === currentView), [currentView]);
+  const currentViewNavItem = useMemo(() => NAV_ITEMS.find(item => item.view === currentView), [currentView, NAV_ITEMS]);
 
   const renderView = () => {
     switch (currentView) {
@@ -98,7 +105,6 @@ export default function AfyaSyncApp() {
     }
   };
 
-  // Sidebar component instance
   const sidebarComponent = (
      <AppSidebar
         user={user}
@@ -112,20 +118,16 @@ export default function AfyaSyncApp() {
 
   return (
     <div className="flex flex-row min-h-screen w-full bg-muted/40">
-      {/* Desktop Sidebar */}
       {!isMobileLayout && (
         <div className="w-64 flex-shrink-0 hidden md:block">
           {sidebarComponent}
         </div>
       )}
 
-      {/* Main Content Area */}
       <div className={`flex-1 flex flex-col sm:gap-4 ${isMobileLayout ? '' : 'sm:py-4'}`}>
-        {/* Mobile Sidebar (Sheet) */}
         {isMobileLayout && (
            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              {/* Trigger is now part of AppHeader, this div is a placeholder for Sheet logic */}
               <div />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64 sm:w-72" title={t('appName')}>
@@ -157,19 +159,7 @@ export default function AfyaSyncApp() {
         onOpenChange={setShowCrisisModal} 
       />
 
-      {/* Emergency FAB */}
-      <div className="fixed bottom-6 right-20 md:right-24 z-50">
-        <Button
-          size="icon"
-          variant="destructive"
-          className="rounded-full w-12 h-12 shadow-lg hover:scale-110 transition-transform"
-          onClick={() => setShowCrisisModal(true)}
-          title={t('emergencySupport')}
-          aria-label={t('emergencySupport')}
-        >
-          <Phone className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Emergency FAB removed */}
     </div>
   );
 }

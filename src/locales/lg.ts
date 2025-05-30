@@ -10,6 +10,7 @@ export const lg = {
   navTherapists: "Abasawo b'emitwe", // "Head doctors" (colloquial for therapists)
   navPremium: "Eby'omuwendo", // "Things of value"
   navSettings: "Entegeka", // "Arrangements/Settings"
+  navEmergencySupport: "Obuyambi obw'Emergency", // Added
   // Auth
   signIn: "Yingira", // "Enter"
   signUp: "Weewandiise", // "Register yourself"
@@ -89,7 +90,7 @@ export const lg = {
   freeMember: "Mmemba wa Bwereere",
   premiumMember: "Mmemba ow'Omuwendo",
   theme: "Endabika",
-  emergencySupport: "Obuyambi obw'Emergency",
+  // emergencySupport: "Obuyambi obw'Emergency", // Already in navEmergencySupport
   accessPremiumFeature: "Funa Eby'omuwendo",
   upgradeToAccess: "Olina okulongoosa okufuna {{feature}}.",
 };

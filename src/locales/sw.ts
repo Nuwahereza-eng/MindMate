@@ -10,6 +10,7 @@ export const sw = {
   navTherapists: "Wataalamu", // "Therapists/Experts"
   navPremium: "Kulipia", // "Premium/Paid"
   navSettings: "Mipangilio", // "Settings"
+  navEmergencySupport: "Msaada wa Dharura", // Added
   // Auth
   signIn: "Ingia",
   signUp: "Jisajili",
@@ -88,7 +89,7 @@ export const sw = {
   freeMember: "Mwanachama wa Bure",
   premiumMember: "Mwanachama wa Kulipia",
   theme: "Mandhari",
-  emergencySupport: "Msaada wa Dharura",
+  // emergencySupport: "Msaada wa Dharura", // Already in navEmergencySupport
   accessPremiumFeature: "Fikia Kipengele cha Kulipia",
   upgradeToAccess: "Tafadhali boresha hadi Kulipia ili kufikia {{feature}}.",
 };

@@ -7,9 +7,10 @@ export const en = {
   navMood: "Mood",
   navJournal: "Journal",
   navWellness: "Wellness",
-  navTherapists: "Therapists", // Restored for navigation
+  navTherapists: "Therapists",
   navPremium: "Premium",
   navSettings: "Settings",
+  navEmergencySupport: "Emergency Support", // Added
   // Auth
   signIn: "Sign In",
   signUp: "Sign Up",
@@ -143,7 +144,7 @@ export const en = {
   freeMember: "Free Member",
   premiumMember: "Premium Member",
   theme: "Theme",
-  emergencySupport: "Emergency Support",
+  // emergencySupport: "Emergency Support", // Already in navEmergencySupport
   accessPremiumFeature: "Access Premium Feature",
   upgradeToAccess: "Please upgrade to Premium to access {{feature}}.",
 };

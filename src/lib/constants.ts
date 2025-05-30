@@ -1,3 +1,4 @@
+
 export const CRISIS_KEYWORDS = ['suicidal', 'suicide', 'kill myself', 'end it all', 'want to die', 'hurt myself'];
 
 export const EMERGENCY_CONTACTS = {
@@ -37,7 +38,8 @@ export type NavItemType = {
   labelKey: string;
   icon: React.ElementType;
   premium?: boolean;
-  view: string;
+  view?: string; // Made optional
+  onClickAction?: () => void; // Added for actions like opening a modal
 };
 
 export type UserProfile = {

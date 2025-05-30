@@ -66,6 +66,7 @@ export const sw = {
   affirmationsGenerationError: "Uzalishaji wa Nukuu Umeshindwa",
   clickToGenerateAffirmations: "Bonyeza kitufe hapo juu kuzalisha nukuu kulingana na shughuli zako za hivi karibuni.",
   startExercise: "Anza Zoezi",
+  exerciseFeatureComingSoon: "Mwongozo huu wa mazoezi unakuja hivi karibuni!",
   breathingExercise478Name: "Kupumua kwa 4-7-8",
   breathingExercise478Duration: "Dakika 2",
   breathingExercise478Desc: "Vuta pumzi kwa 4, shikilia 7, toa 8",

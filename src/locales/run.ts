@@ -37,7 +37,7 @@ export const run = {
   offerBreathingExerciseResponse: "Ekirikukora kirungi! Obuzanyo bw'okwetsya nibuhwera munonga. Ninkusaba ogezeho enkora ya 4-7-8: yetsya ogarukire aha 4, ogumeho ogarukire aha 7, bwanyima ohumuure ogarukire aha 8. Garukamu emirundi 3-4. Noyenda nkuhweremu?",
   defaultResponse1: "Webare kunyumiza nanye. Okugamba aha bi nikikuhulisa kita?",
   defaultResponse2: "Ninsiima okwigura kwaawe. Niki ekirikubaasa kukuhwera hati?",
-  defaultResponse3: "Nikivuga nk'ogu orikurabamu ekintu kikuru. Nobasa kungambira bingi oku kino kirikukukwataho?",
+  defaultResponse3: "Nikivuga nk'ogu orikurabamu ekintu kikuru. Nobasa kungambira bingi oku kino kirikukwataho?",
   defaultResponse4: "Okucondooza kwaawe n'okwamaziima. Buhwezi ki oburikubaasa kuba n'omugasho ahariiwe erizooba?",
   defaultResponse5: "Ndi hanu kuhuriira. Niki ekikuzengire omu bitekerezo ebiro ebi?",
 
@@ -66,6 +66,7 @@ export const run = {
   affirmationsGenerationError: "Okuhanga Ebigambo Kwangire",
   clickToGenerateAffirmations: "Nyiga ahaiguru kuhanga ebigambo by'okweyimutsya kurugiirira aha bikorwa byawe ebya nyomwabazyo.",
   startExercise: "Tandika Omuzanyo",
+  exerciseFeatureComingSoon: "Omuzanyo ogu nigwija ahonaaho!",
   breathingExercise478Name: "Okwetsya kwa 4-7-8",
   breathingExercise478Duration: "Edakiika 2",
   breathingExercise478Desc: "Yetsya okuhika 4, gumaho 7, humuura 8",

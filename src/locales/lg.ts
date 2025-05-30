@@ -66,6 +66,7 @@ export const lg = {
   affirmationsGenerationError: "Okufuna Ebigambo Kugaanye",
   clickToGenerateAffirmations: "Nyiga waggulu okufuna ebigambo by'okwezzamu amaanyi okusinziira ku bikolwa byo ebisembyeyo.",
   startExercise: "Tandika Oluzannyo",
+  exerciseFeatureComingSoon: "Enkola y'okuzannya eno ejja mangu!",
   breathingExercise478Name: "Okussa kwa 4-7-8",
   breathingExercise478Duration: "Ddakiika 2",
   breathingExercise478Desc: "Ssa omukka munda okubala 4, kuwummuze 7, fulumya 8",

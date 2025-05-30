@@ -70,6 +70,7 @@ export const en = {
   affirmationsGenerationError: "Affirmation Generation Failed",
   clickToGenerateAffirmations: "Click the button above to generate affirmations based on your recent activity.",
   startExercise: "Start Exercise",
+  exerciseFeatureComingSoon: "This exercise guide is coming soon!",
   premiumWellnessContent: "Premium Wellness Content",
   premiumWellnessDescription: "Unlock guided audio meditations, advanced breathing techniques, and personalized wellness plans.",
   upgradeToPremium: "Upgrade to Premium",

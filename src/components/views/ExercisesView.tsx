@@ -63,6 +63,12 @@ export function ExercisesView({ isPremium, onNavigateToPremium }: ExercisesViewP
     }
   };
 
+  const handleStartExercise = (exerciseNameKey: string) => {
+    toast({
+      title: t(exerciseNameKey),
+      description: t('exerciseFeatureComingSoon'),
+    });
+  };
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -84,7 +90,13 @@ export function ExercisesView({ isPremium, onNavigateToPremium }: ExercisesViewP
                   <span className="text-sm text-muted-foreground">{t(exercise.durationKey)}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mt-1">{t(exercise.descriptionKey)}</p>
-                <Button variant="link" className="mt-2 px-0 text-primary">{t('startExercise')}</Button>
+                <Button 
+                  variant="link" 
+                  className="mt-2 px-0 text-primary"
+                  onClick={() => handleStartExercise(exercise.nameKey)}
+                >
+                  {t('startExercise')}
+                </Button>
               </Card>
             ))}
           </CardContent>

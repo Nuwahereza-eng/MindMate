@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Star, Award // Replaced Crown with Shield
+  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Award, Users // Added Users icon
 } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -29,7 +29,7 @@ const NAV_ITEMS: NavItemType[] = [
   { id: 'mood', labelKey: 'navMood', icon: Heart, view: 'mood' },
   { id: 'journal', labelKey: 'navJournal', icon: BookOpen, view: 'journal' },
   { id: 'exercises', labelKey: 'navWellness', icon: Zap, view: 'exercises' },
-  // { id: 'therapists', labelKey: 'navTherapists', icon: User, premium: true, view: 'therapists' }, // Removed Therapists
+  { id: 'therapists', labelKey: 'navTherapists', icon: Users, premium: true, view: 'therapists' }, // Restored Therapists with Users icon
   { id: 'premium', labelKey: 'navPremium', icon: Award, view: 'premium' }, // Using Award for Premium
   { id: 'settings', labelKey: 'navSettings', icon: Settings, view: 'settings' },
 ];
@@ -91,7 +91,7 @@ export default function AfyaSyncApp() {
       case 'mood': return <MoodTrackerView isPremium={isPremium} />;
       case 'journal': return <JournalView />;
       case 'exercises': return <ExercisesView isPremium={isPremium} onNavigateToPremium={() => handleNavigate('premium')} />;
-      case 'therapists': return <TherapistsView />; // This case might become unreachable or show a placeholder
+      case 'therapists': return <TherapistsView />;
       case 'premium': return <PremiumView isPremium={isPremium} onSetPremium={handleSetPremium} />;
       case 'settings': return <SettingsView />;
       default: return <ChatView onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
@@ -106,8 +106,8 @@ export default function AfyaSyncApp() {
         navItems={NAV_ITEMS}
         currentView={currentView}
         onNavigate={handleNavigate}
-        onSignIn={() => setShowAuthModal(true)}
-        className="h-full border-r bg-background" // AppSidebar styles itself to fill height
+        // onSignIn prop is removed as the sign-in button in sidebar is removed
+        className="h-full border-r bg-background" 
       />
   );
 

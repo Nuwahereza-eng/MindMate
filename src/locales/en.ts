@@ -7,7 +7,7 @@ export const en = {
   navMood: "Mood",
   navJournal: "Journal",
   navWellness: "Wellness",
-  navTherapists: "Therapists", // Kept for key consistency, though not used in nav
+  navTherapists: "Therapists", // Restored for navigation
   navPremium: "Premium",
   navSettings: "Settings",
   // Auth

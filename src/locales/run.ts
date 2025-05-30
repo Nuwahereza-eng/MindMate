@@ -10,7 +10,7 @@ export const run = {
   navTherapists: "Abahwezi", // "Helpers/Therapists"
   navPremium: "Eby'omuhendo", // "Valuable/Premium"
   navSettings: "Entebeekanisa", // "Arrangements/Settings"
-  navEmergencySupport: "Obuhwezi bw'Emergency", // Added
+  navEmergencySupport: "Obuhwezi bw'Emergency",
   // Auth
   signIn: "Taahamu",
   signUp: "Yehndiikise",
@@ -24,6 +24,9 @@ export const run = {
   continueGoogle: "Gumisiriza na Google",
   continueFacebook: "Gumisiriza na Facebook",
   continueAnonymously: "Gumisiriza otamanyirwe",
+  logout: "Shuma",
+  loggedOutSuccessfully: "Washuma gye",
+  myAccount: "Akawunti Yangye",
   // Chat
   chatPlaceholder: "Handiika obutumwa bwaawe...",
   botGreeting: "Oraire ota! Ndi MindMate, omuhwezi waawe akufaaho aha by'oburungi bw'obwongo. Orire ota erizooba?",
@@ -37,12 +40,12 @@ export const run = {
   defaultResponse3: "Nikivuga nk'ogu orikurabamu ekintu kikuru. Nobasa kungambira bingi oku kino kirikukukwataho?",
   defaultResponse4: "Okucondooza kwaawe n'okwamaziima. Buhwezi ki oburikubaasa kuba n'omugasho ahariiwe erizooba?",
   defaultResponse5: "Ndi hanu kuhuriira. Niki ekikuzengire omu bitekerezo ebiro ebi?",
-  sentimentPrefix: "Okucondooza okwabonetse: ",
 
   moodTrackerTitle: "Okurondooza Okucondooza",
   howAreYouFeelingToday: "Nohuriira ota erizooba?",
   saveMood: "Ibiika Okucondooza",
   moodHistory: "Ebyafaayo by'Okucondooza",
+  noMoodEntriesYet: "Tihariho kucondooza okwateekirwe. Rondooza okucondooza kwaawe kureeba engyendererwaho.",
 
   journalTitle: "Ebihandiiko Byangye",
   writeTodaysEntry: "Handiika Eby'Erizooba",
@@ -55,12 +58,60 @@ export const run = {
   breathingExercises: "Obuzanyo bw'Okwetsya",
   dailyAffirmations: "Ebigambo by'Okweyimutsya",
   startExercise: "Tandika Omuzanyo",
+  breathingExercise478Name: "Okwetsya kwa 4-7-8",
+  breathingExercise478Duration: "Edakiika 2",
+  breathingExercise478Desc: "Yetsya okuhika 4, gumaho 7, humuura 8",
+  breathingExerciseBoxName: "Okwetsya kw'Akasanduuku",
+  breathingExerciseBoxDuration: "Edakiika 3",
+  breathingExerciseBoxDesc: "Okwetsya, okugumaho, okuhumuura, okugumaho okwingana",
+  breathingExerciseBellyName: "Okwetsya kw'Omunda Munene",
+  breathingExerciseBellyDuration: "Edakiika 5",
+  breathingExerciseBellyDesc: "Yetegyereze okuhaaga enda yaawe",
+  affirmation1: "Oine amaani kukira oku orikutekyereza",
+  affirmation2: "Okucondooza oku n'okwahona",
+  affirmation3: "Oshemereire okukundwa n'okushemererwa",
+  affirmation4: "Buri mwitsyo ogu oyetsya n'obuhanguzi",
+  affirmation5: "Wahanguhire ebigumire ira",
 
   therapistsTitle: "Ganiira n'Abahwezi",
   bookSession: "Teeka Oruteerane",
+  therapistRating: "Okusiimwa:",
+  therapistSessionPrice: "Oruteerane:",
+  howItWorks: "Oku kirikukora",
+  howItWorksPoint1: "Sherura abahwezi abahabirwe omu kiikaro kyaawe",
+  howItWorksPoint2: "Teeka enteerane ezikuhikira",
+  howItWorksPoint3: "Obutumwa bwa vidiyo obuhumwire nari enteerane z'omumaisho",
+  howItWorksPoint4: "Abahwezi boona bahabirwe kandi baineใบอนุญาต",
 
   premiumMembershipTitle: "Obunywani bw'Omuhendo",
   upgradeNow: "Hindura Hati",
+  freePlan: "Pulani y'Obusa",
+  perMonth: "/okwezi",
+  premiumPlan: "Pulani y'Omuhendo",
+  freePlanFeatures: [
+    "Obuhwezi bwa chatbot obw'okutandika",
+    "Okurondooza okucondooza",
+    "Ebihandiiko ebirahukire",
+    "Obuzanyo bw'okwetsya obw'okutandika",
+  ],
+  freePlanMissingFeatures: [
+    "Okwekebejja okw'ahaiguru",
+    "Okukwatagana n'abahwezi",
+    "Ebintu by'omuhendo",
+  ],
+  premiumPlanFeatures: [
+    "Byona ebiri omu Busa",
+    "Okwekebejja okucondooza okw'ahaiguru",
+    "Ebihandiiko ebitaribugarukira",
+    "Okutendeka okw'omuhendo okwebembeirwe",
+    "Okutumira abahwezi obutumwa butaizooka",
+    "Obuhwezi bw'okubanza",
+    "Amagezi g'omuntu wenka",
+  ],
+  currentPlan: "Pulani Yangye",
+  moneyBackGuarantee: "Garanti y'okugarura esente omu biro 30",
+  moneyBackGuaranteeDesc: "Gyezaho Premium otatiinire. Waaba otashemereirwe, nituza kukugarurira esente zaawe zoona omu biro 30.",
+  premiumUpgradeSuccess: "Oraire ota! Obunywani bwaawe obwa MindMate Premium nibutandika!",
 
   settingsTitle: "Entebeekanisa",
   appearance: "Endabika",
@@ -89,7 +140,6 @@ export const run = {
   freeMember: "Memba w'Obusa",
   premiumMember: "Memba w'Omuhendo",
   theme: "Endabika",
-  // emergencySupport: "Obuhwezi bw'Emergency", // Already in navEmergencySupport
   accessPremiumFeature: "Funa Eby'omuhendo",
   upgradeToAccess: "Oine kuhindura Premium okufuna {{feature}}.",
 };

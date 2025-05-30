@@ -10,7 +10,7 @@ export const en = {
   navTherapists: "Therapists",
   navPremium: "Premium",
   navSettings: "Settings",
-  navEmergencySupport: "Emergency Support", // Added
+  navEmergencySupport: "Emergency Support",
   // Auth
   signIn: "Sign In",
   signUp: "Sign Up",
@@ -24,6 +24,9 @@ export const en = {
   continueGoogle: "Continue with Google",
   continueFacebook: "Continue with Facebook",
   continueAnonymously: "Continue anonymously",
+  logout: "Logout",
+  loggedOutSuccessfully: "Logged out successfully",
+  myAccount: "My Account",
   // Chat
   chatPlaceholder: "Type your message...",
   botGreeting: "Hello! I'm MindMate, your compassionate mental health companion. How are you feeling today?",
@@ -37,7 +40,6 @@ export const en = {
   defaultResponse3: "It sounds like you're going through something important. Can you tell me more about how this is affecting you?",
   defaultResponse4: "Your feelings are completely valid. What kind of support would feel most meaningful to you today?",
   defaultResponse5: "I'm here to listen. What's been on your mind lately?",
-  sentimentPrefix: "Sentiment detected: ",
   // Mood Tracker
   moodTrackerTitle: "Mood Tracker",
   howAreYouFeelingToday: "How are you feeling today?",
@@ -47,6 +49,7 @@ export const en = {
   moodImprovedMessage: "Your mood has improved by 15% this week! Keep up the great work.",
   averageMood: "Average Mood",
   bestDay: "Best Day",
+  noMoodEntriesYet: "No mood entries yet. Track your mood to see insights.",
   // Journal
   journalTitle: "Personal Journal",
   writeTodaysEntry: "Write Today's Entry",
@@ -144,7 +147,6 @@ export const en = {
   freeMember: "Free Member",
   premiumMember: "Premium Member",
   theme: "Theme",
-  // emergencySupport: "Emergency Support", // Already in navEmergencySupport
   accessPremiumFeature: "Access Premium Feature",
   upgradeToAccess: "Please upgrade to Premium to access {{feature}}.",
 };

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  MessageCircle, Settings, Heart, Zap, BookOpen, Shield, ShieldAlert, Phone, Calendar as CalendarIcon, Menu as MenuIcon, X as XIcon, Award, Users
+  MessageCircle, Settings, Heart, Zap, BookOpen, ShieldAlert, Menu as MenuIcon, Award, Users
 } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -71,6 +71,15 @@ export default function AfyaSyncApp() {
     }
   };
 
+  const handleLogout = () => {
+    setUser(null);
+    setIsPremium(false);
+    localStorage.removeItem('afyasync-user');
+    localStorage.removeItem('afyasync-isPremium');
+    setCurrentView('chat'); // Or your desired default view after logout
+    toast({ title: t('loggedOutSuccessfully') });
+  };
+
   const handleSetPremium = (premiumStatus: boolean) => {
     setIsPremium(premiumStatus);
     localStorage.setItem('afyasync-isPremium', JSON.stringify(premiumStatus));
@@ -107,7 +116,6 @@ export default function AfyaSyncApp() {
 
   const sidebarComponent = (
      <AppSidebar
-        isPremium={isPremium}
         navItems={NAV_ITEMS}
         currentView={currentView}
         onNavigate={handleNavigate}
@@ -127,6 +135,7 @@ export default function AfyaSyncApp() {
         {isMobileLayout && (
            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
+              {/* This div can be styled if you need a visible trigger, or kept empty for programmatic control */}
               <div />
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64 sm:w-72" title={t('appName')}>
@@ -141,6 +150,7 @@ export default function AfyaSyncApp() {
             currentViewNavItem={currentViewNavItem}
             onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
             onSignIn={() => setShowAuthModal(true)}
+            onLogout={handleLogout}
             isMobileLayout={isMobileLayout}
         />
         <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0 pb-6' : 'p-4 sm:px-6 sm:py-0 md:gap-8 pb-24'}`}>

@@ -10,7 +10,7 @@ export const lg = {
   navTherapists: "Abasawo b'emitwe", // "Head doctors" (colloquial for therapists)
   navPremium: "Eby'omuwendo", // "Things of value"
   navSettings: "Entegeka", // "Arrangements/Settings"
-  navEmergencySupport: "Obuyambi obw'Emergency", // Added
+  navEmergencySupport: "Obuyambi obw'Emergency",
   // Auth
   signIn: "Yingira", // "Enter"
   signUp: "Weewandiise", // "Register yourself"
@@ -24,11 +24,13 @@ export const lg = {
   continueGoogle: "Yingirira ne Google",
   continueFacebook: "Yingirira ne Facebook",
   continueAnonymously: "Yingirira nga tomanyise",
+  logout: "Fuluma",
+  loggedOutSuccessfully: "Ofulumye bulungi",
+  myAccount: "Akawunti Yange",
   // Chat
   chatPlaceholder: "Wandika obubaka bwo...",
   botGreeting: "Mbalamusizza! Nze MindMate, mukwano gwo akufaako mu by'obulamu bw'omwoyo. Otya leero?",
   crisisWarning: "Ndi mweraliikirivu nnyo olw'ebyo by'ogambye. Enneewulira yo ntegeerekeka, naye njagala okakasa nti ofuna obuyambi bw'owetaagawo. Funa abakugu mu kuyamba abali mu bizibu.",
-  // ... other translations will be similar to English for now
   feelingAnxiousResponse: "Ntegedde owulira nga oli mweraliikirivu. Kino kya bulijjo. Oyagala nkuyise mu kazannyirizi k'okussa obulungi, oba oyagala twogere ku ekyo ekikweraliikiriza?",
   feelingSadResponse: "Mpulira nti oli mu kiseera kizibu. Kyetaagisa obuvumu okwogera ku nneewulira eno. Kijjukire nti kino kya kiseera buseera. Kiki ekiyinza okukuyamba leero?",
   feelingStressedResponse: "Okuwulira ng'olemereddwa kitegeerekeka nnyo. Ka tukitwale mpola. Oyagala tukole akazannyirizi k'okwekkakkanya oba twogere ku ekyo ekikulemesa?",
@@ -38,12 +40,12 @@ export const lg = {
   defaultResponse3: "Kivuga ng'olina ekintu ekikulu. Osobola okunnyonnyola engeri kino gyekikukwatamu?",
   defaultResponse4: "Enneewulira zo za mazima. Buyambi ki obwandibadde obw'omugaso gy'oli leero?",
   defaultResponse5: "Ndi wano okuwuliriza. Kiki ekikubaluseeko mu biro bino?",
-  sentimentPrefix: "Enneewulira eyolabiddwa: ",
 
   moodTrackerTitle: "Okulondoola Enneewulira",
   howAreYouFeelingToday: "Owulira otya leero?",
   saveMood: "Tereka Enneewulira",
   moodHistory: "Ebyafaayo by'Enneewulira",
+  noMoodEntriesYet: "Tewali nneewulira ziterekeddwa. Londoola enneewulira yo okulaba enkyukakyuka.",
 
   journalTitle: "Ekiwandiiko Kyange",
   writeTodaysEntry: "Wandiika Ebya Leero",
@@ -56,12 +58,60 @@ export const lg = {
   breathingExercises: "Obuzannyo bw'Okussa",
   dailyAffirmations: "Ebigambo Eby'okwezzamu Amaanyi",
   startExercise: "Tandika Oluzannyo",
+  breathingExercise478Name: "Okussa kwa 4-7-8",
+  breathingExercise478Duration: "Ddakiika 2",
+  breathingExercise478Desc: "Ssa omukka munda okubala 4, kuwummuze 7, fulumya 8",
+  breathingExerciseBoxName: "Okussa kw'Akasanduuko",
+  breathingExerciseBoxDuration: "Ddakiika 3",
+  breathingExerciseBoxDesc: "Okussa, okuwummuza, okufulumya, okuwummuza byenkana",
+  breathingExerciseBellyName: "Okussa Okw'omubiri",
+  breathingExerciseBellyDuration: "Ddakiika 5",
+  breathingExerciseBellyDesc: "Essa ku kusimba olubuto lwo",
+  affirmation1: "Oli wa maanyi okusinga bw'olowooza",
+  affirmation2: "Enneewulira eno yaakuggwaawo",
+  affirmation3: "Osanidde okwagala n'essanyu",
+  affirmation4: "Buli mukka gw'ossa buwanguzi",
+  affirmation5: "Wawangudde ebizibu emabega",
 
   therapistsTitle: "Yogerako n'Abasawo",
   bookSession: "Weereza Olukiiko",
+  therapistRating: "Okusiimwa:",
+  therapistSessionPrice: "Olukiiko:",
+  howItWorks: "Enkola yaakyo",
+  howItWorksPoint1: "Noonya abasawo abakakasiddwa mu kitundu kyo",
+  howItWorksPoint2: "Buuka enkiiko ezikugyamu",
+  howItWorksPoint3: "Emikutu gya vidiyo emikakafu oba enkiiko mu bantu",
+  howItWorksPoint4: "Abasawo bonna bakakasiddwa era balina layisinsi",
 
   premiumMembershipTitle: "Obunywani obw'Omuwendo",
   upgradeNow: "Longoosa Kati",
+  freePlan: "Pulani ya Bwereere",
+  perMonth: "/omwezi",
+  premiumPlan: "Pulani y'Omuwendo",
+  freePlanFeatures: [
+    "Obuyambi bwa chatbot obusookerwako",
+    "Okulondoola enneewulira",
+    "Ekiwandiiko ekyangu",
+    "Obuzannyo bw'okussa obusookerwako",
+  ],
+  freePlanMissingFeatures: [
+    "Okwekenneenya okw'omulembe",
+    "Okukwatagana n'abasawo",
+    "Ebintu eby'omuwendo",
+  ],
+  premiumPlanFeatures: [
+    "Byonna ebiri mu Bwereere",
+    "Okwekenneenya enneewulira okw'omulembe",
+    "Ebiwandiiko ebitaliiko kikomo",
+    "Okwefumiitiriza okw'omuwendo okulagirirwa",
+    "Okutumira abasawo obubaka obutereevu",
+    "Obuyambi obusookeddwa",
+    "Amagezi ag'omuntu ku ggye",
+  ],
+  currentPlan: "Pulani Yange",
+  moneyBackGuarantee: "Garantiya y'okuzzaayo ssente mu nnaku 30",
+  moneyBackGuaranteeDesc: "Gezaako Premium awatali kutya. Bw'oba tommatidde, tujja kukuzzaayo ssente zo zonna mu nnaku 30.",
+  premiumUpgradeSuccess: "Weekoledde! Obunywani bwo obwa MindMate Premium butandise!",
 
   settingsTitle: "Entegeka",
   appearance: "Endabika",
@@ -90,7 +140,6 @@ export const lg = {
   freeMember: "Mmemba wa Bwereere",
   premiumMember: "Mmemba ow'Omuwendo",
   theme: "Endabika",
-  // emergencySupport: "Obuyambi obw'Emergency", // Already in navEmergencySupport
   accessPremiumFeature: "Funa Eby'omuwendo",
   upgradeToAccess: "Olina okulongoosa okufuna {{feature}}.",
 };

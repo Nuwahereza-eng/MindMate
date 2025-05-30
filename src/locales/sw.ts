@@ -10,7 +10,7 @@ export const sw = {
   navTherapists: "Wataalamu", // "Therapists/Experts"
   navPremium: "Kulipia", // "Premium/Paid"
   navSettings: "Mipangilio", // "Settings"
-  navEmergencySupport: "Msaada wa Dharura", // Added
+  navEmergencySupport: "Msaada wa Dharura",
   // Auth
   signIn: "Ingia",
   signUp: "Jisajili",
@@ -24,6 +24,9 @@ export const sw = {
   continueGoogle: "Endelea na Google",
   continueFacebook: "Endelea na Facebook",
   continueAnonymously: "Endelea bila kujitambulisha",
+  logout: "Ondoka",
+  loggedOutSuccessfully: "Umeondoka kwa mafanikio",
+  myAccount: "Akaunti Yangu",
   // Chat
   chatPlaceholder: "Andika ujumbe wako...",
   botGreeting: "Habari! Mimi ni MindMate, mwenzako mwenye huruma kwa afya ya akili. Unajisikiaje leo?",
@@ -37,12 +40,12 @@ export const sw = {
   defaultResponse3: "Inaonekana unapitia jambo muhimu. Unaweza kuniambia zaidi jinsi hii inakuathiri?",
   defaultResponse4: "Hisia zako ni halali kabisa. Ni aina gani ya msaada ingekuwa na maana zaidi kwako leo?",
   defaultResponse5: "Niko hapa kusikiliza. Nini kimekuwa akilini mwako hivi karibuni?",
-  sentimentPrefix: "Hisia zilizogunduliwa: ",
   
   moodTrackerTitle: "Kifuatiliaji cha Hali ya Moyo",
   howAreYouFeelingToday: "Unajisikiaje leo?",
   saveMood: "Hifadhi Hali",
   moodHistory: "Historia ya Hali",
+  noMoodEntriesYet: "Hakuna hali zilizohifadhiwa bado. Fuatilia hali yako kuona mabadiliko.",
 
   journalTitle: "Shajara ya Kibinafsi",
   writeTodaysEntry: "Andika Ingizo la Leo",
@@ -55,12 +58,60 @@ export const sw = {
   breathingExercises: "Mazoezi ya Kupumua",
   dailyAffirmations: "Nukuu za Kujitia Moyo",
   startExercise: "Anza Zoezi",
+  breathingExercise478Name: "Kupumua kwa 4-7-8",
+  breathingExercise478Duration: "Dakika 2",
+  breathingExercise478Desc: "Vuta pumzi kwa 4, shikilia 7, toa 8",
+  breathingExerciseBoxName: "Kupumua kwa Sanduku",
+  breathingExerciseBoxDuration: "Dakika 3",
+  breathingExerciseBoxDesc: "Vuta, shikilia, toa, shikilia kwa usawa",
+  breathingExerciseBellyName: "Kupumua kwa Tumbo Kubwa",
+  breathingExerciseBellyDuration: "Dakika 5",
+  breathingExerciseBellyDesc: "Zingatia kupanua diaphragm yako",
+  affirmation1: "Wewe ni mwenye nguvu kuliko unavyofikiria",
+  affirmation2: "Hisia hii ni ya muda na itapita",
+  affirmation3: "Unastahili upendo na furaha",
+  affirmation4: "Kila pumzi unayovuta ni ushindi",
+  affirmation5: "Umeshinda changamoto hapo awali",
 
   therapistsTitle: "Ungana na Wataalamu",
   bookSession: "Weka Kikao",
+  therapistRating: "Ukadiriaji:",
+  therapistSessionPrice: "Kikao:",
+  howItWorks: "Jinsi inavyofanya kazi",
+  howItWorksPoint1: "Vinjari wataalamu walioidhinishwa katika eneo lako",
+  howItWorksPoint2: "Weka vikao vinavyolingana na ratiba yako",
+  howItWorksPoint3: "Simu za video salama au mikutano ya ana kwa ana",
+  howItWorksPoint4: "Wataalamu wote wamethibitishwa na wana leseni",
 
   premiumMembershipTitle: "Uanachama wa Kulipia",
   upgradeNow: "Boresha Sasa",
+  freePlan: "Mpango wa Bure",
+  perMonth: "/mwezi",
+  premiumPlan: "Mpango wa Kulipia",
+  freePlanFeatures: [
+    "Usaidizi wa msingi wa chatbot",
+    "Ufuatiliaji wa hali ya moyo",
+    "Shajara rahisi",
+    "Mazoezi ya msingi ya kupumua",
+  ],
+  freePlanMissingFeatures: [
+    "Takwimu za kina",
+    "Uunganisho na wataalamu",
+    "Maudhui ya kulipia",
+  ],
+  premiumPlanFeatures: [
+    "Yote yaliyo katika Mpango wa Bure",
+    "Takwimu za kina za hali ya moyo",
+    "Maingizo ya shajara yasiyo na kikomo",
+    "Tafakari za kuongozwa za kulipia",
+    "Ujumbe wa moja kwa moja kwa wataalamu",
+    "Usaidizi wa kipaumbele",
+    "Ufahamu wa kibinafsi",
+  ],
+  currentPlan: "Mpango Wangu",
+  moneyBackGuarantee: "Dhamana ya Kurejeshewa Pesa kwa Siku 30",
+  moneyBackGuaranteeDesc: "Jaribu Premium bila hatari. Ikiwa haujaridhika kabisa, tutakurejeshea malipo yako kamili ndani ya siku 30.",
+  premiumUpgradeSuccess: "Karibu MindMate Premium!",
   
   settingsTitle: "Mipangilio",
   appearance: "Muonekano",
@@ -89,7 +140,6 @@ export const sw = {
   freeMember: "Mwanachama wa Bure",
   premiumMember: "Mwanachama wa Kulipia",
   theme: "Mandhari",
-  // emergencySupport: "Msaada wa Dharura", // Already in navEmergencySupport
   accessPremiumFeature: "Fikia Kipengele cha Kulipia",
   upgradeToAccess: "Tafadhali boresha hadi Kulipia ili kufikia {{feature}}.",
 };

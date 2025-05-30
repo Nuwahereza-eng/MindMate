@@ -26,9 +26,9 @@ export async function performSentimentAnalysis(text: string): Promise<SentimentA
 
 const CRISIS_MARKER = "CRISIS_DETECTED_BY_AI";
 
-export async function getAIChatResponse(userInput: string): Promise<{ botResponse: string; isCrisisFromAI: boolean }> {
+export async function getAIChatResponse(userInput: string, languageCode: string): Promise<{ botResponse: string; isCrisisFromAI: boolean }> {
   try {
-    const input: MindMateChatInput = { message: userInput };
+    const input: MindMateChatInput = { message: userInput, languageCode };
     const result = await getMindMateResponseFlow(input);
     
     let botResponse = result.response;
@@ -49,3 +49,4 @@ export async function getAIChatResponse(userInput: string): Promise<{ botRespons
     };
   }
 }
+

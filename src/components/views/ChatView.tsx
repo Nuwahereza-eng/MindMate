@@ -34,7 +34,7 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
 const INITIAL_GREETING_ID = -1; // Stable ID for the initial greeting message
 
 export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
-  const { t } = useLocalization();
+  const { t, language } = useLocalization();
   
   // Initialize messages with the bot greeting using an initializer function for useState
   const [messages, setMessages] = useState<Message[]>(() => [
@@ -80,8 +80,8 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     setIsTyping(true);
 
     try {
-      // Get AI response
-      const aiChatResult = await getAIChatResponse(currentInput);
+      // Get AI response, passing the current language
+      const aiChatResult = await getAIChatResponse(currentInput, language);
       let botResponseContent = aiChatResult.botResponse;
       
       // Determine crisis status
@@ -199,3 +199,4 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     </div>
   );
 }
+

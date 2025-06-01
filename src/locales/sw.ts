@@ -24,6 +24,8 @@ export const sw = {
   needAccount: "Unahitaji akaunti? Jisajili",
   haveAccount: "Tayari una akaunti? Ingia",
   continueGoogle: "Endelea na Google",
+  signInSuccessGoogle: "Umeingia na Google kwa mafanikio!",
+  signInErrorGoogle: "Kuingia na Google Imeshindwa",
   continueFacebook: "Endelea na Facebook",
   continueAnonymously: "Endelea bila kujitambulisha",
   logout: "Ondoka",

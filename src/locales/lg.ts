@@ -24,6 +24,8 @@ export const lg = {
   needAccount: "Wetaaga akawunti? Weewandiise",
   haveAccount: "Olina akawunti? Yingira",
   continueGoogle: "Yingirira ne Google",
+  signInSuccessGoogle: "Oyingidde ne Google bulungi!",
+  signInErrorGoogle: "Okuyingira ne Google Kulemeredde",
   continueFacebook: "Yingirira ne Facebook",
   continueAnonymously: "Yingirira nga tomanyise",
   logout: "Fuluma",

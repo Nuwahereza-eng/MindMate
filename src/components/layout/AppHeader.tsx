@@ -26,6 +26,7 @@ interface AppHeaderProps {
   onSignIn: () => void;
   onLogout: () => void;
   isMobileLayout: boolean;
+  authLoading: boolean;
 }
 
 export function AppHeader({
@@ -35,24 +36,29 @@ export function AppHeader({
   onToggleMobileMenu,
   onSignIn,
   onLogout,
-  isMobileLayout
+  isMobileLayout,
+  authLoading
 }: AppHeaderProps) {
   const { t } = useLocalization();
 
   const getInitials = (firstName?: string, lastName?: string) => {
-    if (!firstName) return 'U';
+    if (!firstName || firstName === t('anonymousUser') || firstName.trim() === '') return 'U';
     let initials = firstName[0];
-    if (lastName && lastName[0]) {
+    if (lastName && lastName.length > 0) {
       initials += lastName[0];
     }
     return initials.toUpperCase();
   }
+  
+  const userDisplayName = user ? `${user.firstName}${user.lastName ? ' ' + user.lastName : ''}` : '';
+  const userDisplayEmailOrPhone = user ? (user.email || user.phone || '') : '';
+
 
   const userAvatarDropdown = user && (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className={`cursor-pointer ${isMobileLayout ? 'h-8 w-8' : 'h-9 w-9'}`}>
-          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.firstName, user.lastName)}`} alt={`${user.firstName} ${user.lastName}`} data-ai-hint="profile avatar" />
+          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.firstName, user.lastName)}`} alt={userDisplayName} data-ai-hint="profile avatar" />
           <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -60,10 +66,10 @@ export function AppHeader({
         <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5">
-          <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
-          {(user.email || user.phone) && (
+          <p className="text-sm font-medium">{userDisplayName}</p>
+          {userDisplayEmailOrPhone && (
             <p className="text-xs text-muted-foreground">
-              {user.email || user.phone}
+              {userDisplayEmailOrPhone}
             </p>
           )}
         </div>
@@ -91,7 +97,9 @@ export function AppHeader({
         <div className="flex items-center gap-2">
           <LanguageSwitcher />
           <ThemeToggle isMobile />
-          {!user ? (
+          {authLoading ? (
+            <div className="h-8 w-8 rounded-full bg-muted animate-pulse" />
+          ) : !user ? (
             <Button onClick={onSignIn} size="sm">{t('signIn')}</Button>
           ) : (
             userAvatarDropdown
@@ -115,7 +123,9 @@ export function AppHeader({
         )}
         <LanguageSwitcher />
         <ThemeToggle />
-        {!user ? (
+        {authLoading ? (
+            <div className="h-9 w-20 rounded-md bg-muted animate-pulse" />
+          ) : !user ? (
           <Button onClick={onSignIn}>{t('signIn')}</Button>
         ) : (
           <div className="flex items-center gap-2">

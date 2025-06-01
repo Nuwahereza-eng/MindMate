@@ -43,11 +43,12 @@ export type NavItemType = {
 };
 
 export type UserProfile = {
+  uid: string; // Firebase User ID
   firstName: string;
   lastName: string;
   email: string | null;
   phone: string | null;
-  joinDate: string;
+  joinDate: string; // ISO string
 };
 
 export type Message = {

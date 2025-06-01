@@ -24,6 +24,8 @@ export const run = {
   needAccount: "Noyenda akawunti? Yehndiikise",
   haveAccount: "Oine akawunti? Taahamu",
   continueGoogle: "Gumisiriza na Google",
+  signInSuccessGoogle: "Watunguka okutaahamu na Google!",
+  signInErrorGoogle: "Okutaahamu na Google Kwangire",
   continueFacebook: "Gumisiriza na Facebook",
   continueAnonymously: "Gumisiriza otamanyirwe",
   logout: "Shuma",

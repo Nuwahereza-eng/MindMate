@@ -24,6 +24,8 @@ export const en = {
   needAccount: "Need an account? Sign up",
   haveAccount: "Already have an account? Sign in",
   continueGoogle: "Continue with Google",
+  signInSuccessGoogle: "Signed in with Google successfully!",
+  signInErrorGoogle: "Google Sign-In Failed",
   continueFacebook: "Continue with Facebook",
   continueAnonymously: "Continue anonymously",
   logout: "Logout",

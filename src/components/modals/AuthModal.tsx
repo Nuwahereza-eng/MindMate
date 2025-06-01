@@ -16,11 +16,14 @@ import { Label } from "@/components/ui/label";
 import { useLocalization } from '@/context/LocalizationContext';
 import type { UserProfile } from '@/lib/constants';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { auth } from '@/lib/firebase'; // Import Firebase auth
+import { GoogleAuthProvider, signInWithPopup, type User as FirebaseUser } from 'firebase/auth';
+import { toast } from '@/hooks/use-toast';
 
 interface AuthModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onAuthenticated: (user: UserProfile) => void;
+  onAuthenticated: (user: UserProfile) => void; // Still used for non-Firebase auth methods
 }
 
 export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalProps) {
@@ -29,8 +32,10 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   const [lastName, setLastName] = useState('');
   const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
 
-  const handleAuth = (e: React.FormEvent, mode: 'login' | 'register') => {
+  // This handler is for the mock email/password auth
+  const handleManualAuth = (e: React.FormEvent, mode: 'login' | 'register') => {
     e.preventDefault();
     
     let userEmail: string | null = null;
@@ -43,12 +48,15 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     }
 
     let profileToAuth: UserProfile;
+    const newUid = `mock-${Date.now()}`; // Create a mock UID
 
     if (mode === 'login') {
       let foundStoredUser = false;
       let storedFirstName = '';
       let storedLastName = '';
       let storedJoinDate = new Date().toISOString().split('T')[0];
+      let storedUid = newUid;
+
 
       const storedUserRaw = localStorage.getItem('afyasync-user');
       if (storedUserRaw) {
@@ -60,7 +68,8 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           if (emailMatch || phoneMatch) {
             storedFirstName = storedUser.firstName;
             storedLastName = storedUser.lastName;
-            storedJoinDate = storedUser.joinDate; // Use original join date
+            storedJoinDate = storedUser.joinDate; 
+            storedUid = storedUser.uid;
             foundStoredUser = true;
           }
         } catch (parseError) {
@@ -70,6 +79,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
 
       if (foundStoredUser) {
         profileToAuth = {
+          uid: storedUid,
           firstName: storedFirstName,
           lastName: storedLastName,
           email: userEmail,
@@ -77,8 +87,8 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           joinDate: storedJoinDate,
         };
       } else {
-        // Fallback if no stored user matches or exists
         profileToAuth = {
+          uid: newUid,
           firstName: userEmail?.split('@')[0] || userPhone || t('anonymousUser'),
           lastName: '',
           email: userEmail,
@@ -88,6 +98,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       }
     } else { // mode === 'register'
       profileToAuth = {
+        uid: newUid,
         firstName: firstName || (userEmail?.split('@')[0] || userPhone || t('anonymousUser')),
         lastName: lastName || '',
         email: userEmail,
@@ -96,29 +107,45 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       };
     }
     
-    onAuthenticated(profileToAuth);
+    onAuthenticated(profileToAuth); // This sets the user state in AfyaSyncApp for mock auth
     onOpenChange(false);
-    // Reset form fields
     setFirstName('');
     setLastName('');
     setEmailOrPhone('');
     setPassword('');
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsLoadingGoogle(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      // onAuthStateChanged in AfyaSyncApp will handle setting the user profile
+      onOpenChange(false); // Close modal on success
+      toast({ title: t('signInSuccessGoogle') || "Signed in with Google successfully!"});
+    } catch (error: any) {
+      console.error("Google Sign-In Error:", error);
+      toast({ title: t('signInErrorGoogle') || "Google Sign-In Failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoadingGoogle(false);
+    }
+  };
+
   const handleAnonymousContinue = () => {
     const user: UserProfile = {
+      uid: `anon-${Date.now()}`,
       firstName: t('anonymousUser'),
       lastName: '',
       email: null,
       phone: null,
       joinDate: new Date().toISOString().split('T')[0],
     };
-    onAuthenticated(user);
+    onAuthenticated(user); // This sets the user state in AfyaSyncApp for anonymous
     onOpenChange(false);
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!isLoadingGoogle) onOpenChange(open); }}>
       <DialogContent className="sm:max-w-[425px]">
         <Tabs defaultValue="login" className="w-full">
           <DialogHeader className="mb-4">
@@ -134,7 +161,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
             <TabsTrigger value="register">{t('signUp')}</TabsTrigger>
           </TabsList>
           <TabsContent value="login">
-            <form onSubmit={(e) => handleAuth(e, 'login')} className="space-y-4 py-4">
+            <form onSubmit={(e) => handleManualAuth(e, 'login')} className="space-y-4 py-4">
               <div>
                 <Label htmlFor="login-email-phone">{t('emailOrPhone')}</Label>
                 <Input id="login-email-phone" placeholder="you@example.com / 07..." value={emailOrPhone} onChange={(e) => setEmailOrPhone(e.target.value)} required />
@@ -147,14 +174,14 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
             </form>
           </TabsContent>
           <TabsContent value="register">
-            <form onSubmit={(e) => handleAuth(e, 'register')} className="space-y-4 py-4">
+            <form onSubmit={(e) => handleManualAuth(e, 'register')} className="space-y-4 py-4">
               <div>
                 <Label htmlFor="register-firstname">{t('firstName')}</Label>
                 <Input id="register-firstname" placeholder={t('firstName')} value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
               </div>
               <div>
                 <Label htmlFor="register-lastname">{t('lastName')}</Label>
-                <Input id="register-lastname" placeholder={t('lastName')} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+                <Input id="register-lastname" placeholder={t('lastName')} value={lastName} onChange={(e) => setLastName(e.target.value)} />
               </div>
               <div>
                 <Label htmlFor="register-email-phone">{t('emailOrPhone')}</Label>
@@ -169,7 +196,9 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           </TabsContent>
         </Tabs>
         <div className="mt-4 space-y-2">
-            <Button variant="outline" className="w-full" onClick={() => alert(t('continueGoogle') + ' - Not implemented')}>{t('continueGoogle')}</Button>
+            <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoadingGoogle}>
+              {isLoadingGoogle ? (t('loading') || 'Loading...') : t('continueGoogle')}
+            </Button>
             <Button variant="outline" className="w-full" onClick={() => alert(t('continueFacebook') + ' - Not implemented')}>{t('continueFacebook')}</Button>
         </div>
         <DialogFooter className="mt-4 sm:justify-center">

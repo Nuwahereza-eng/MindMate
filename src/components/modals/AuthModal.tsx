@@ -42,15 +42,63 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       userPhone = emailOrPhone;
     }
 
-    const user: UserProfile = {
-      firstName: mode === 'register' && firstName ? firstName : (userEmail?.split('@')[0] || userPhone || t('anonymousUser')),
-      lastName: mode === 'register' ? lastName : '',
-      email: userEmail,
-      phone: userPhone,
-      joinDate: new Date().toISOString().split('T')[0],
-    };
-    onAuthenticated(user);
+    let profileToAuth: UserProfile;
+
+    if (mode === 'login') {
+      let foundStoredUser = false;
+      let storedFirstName = '';
+      let storedLastName = '';
+      let storedJoinDate = new Date().toISOString().split('T')[0];
+
+      const storedUserRaw = localStorage.getItem('afyasync-user');
+      if (storedUserRaw) {
+        try {
+          const storedUser: UserProfile = JSON.parse(storedUserRaw);
+          const emailMatch = userEmail && storedUser.email === userEmail;
+          const phoneMatch = userPhone && storedUser.phone === userPhone;
+
+          if (emailMatch || phoneMatch) {
+            storedFirstName = storedUser.firstName;
+            storedLastName = storedUser.lastName;
+            storedJoinDate = storedUser.joinDate; // Use original join date
+            foundStoredUser = true;
+          }
+        } catch (parseError) {
+          console.error("Error parsing stored user data:", parseError);
+        }
+      }
+
+      if (foundStoredUser) {
+        profileToAuth = {
+          firstName: storedFirstName,
+          lastName: storedLastName,
+          email: userEmail,
+          phone: userPhone,
+          joinDate: storedJoinDate,
+        };
+      } else {
+        // Fallback if no stored user matches or exists
+        profileToAuth = {
+          firstName: userEmail?.split('@')[0] || userPhone || t('anonymousUser'),
+          lastName: '',
+          email: userEmail,
+          phone: userPhone,
+          joinDate: new Date().toISOString().split('T')[0],
+        };
+      }
+    } else { // mode === 'register'
+      profileToAuth = {
+        firstName: firstName || (userEmail?.split('@')[0] || userPhone || t('anonymousUser')),
+        lastName: lastName || '',
+        email: userEmail,
+        phone: userPhone,
+        joinDate: new Date().toISOString().split('T')[0],
+      };
+    }
+    
+    onAuthenticated(profileToAuth);
     onOpenChange(false);
+    // Reset form fields
     setFirstName('');
     setLastName('');
     setEmailOrPhone('');

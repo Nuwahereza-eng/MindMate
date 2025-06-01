@@ -72,6 +72,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
 
 
   useEffect(() => {
+    // Update initial greeting if language changes and it's the only message
     setMessages(prevMessages => {
       if (prevMessages.length === 1 && prevMessages[0].id === INITIAL_GREETING_ID && prevMessages[0].type === 'bot') {
         return [{ ...prevMessages[0], content: t('botGreeting') }];
@@ -117,7 +118,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
 
-    const userLastName = user && user.lastName ? user.lastName : undefined;
+    const userLastName = user && typeof user.lastName === 'string' && user.lastName.length > 0 ? user.lastName : undefined;
 
     try {
       const aiChatResult = await getAIChatResponse(currentInput, language, historyToPass, userLastName);
@@ -161,43 +162,60 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
     <div className="flex flex-col h-full p-4">
       <ScrollArea className="flex-1 mb-4 pr-4" ref={scrollAreaRef}>
         <div className="space-y-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex items-end gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.type === 'bot' && (
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/40x40/9B59B6/FFFFFF.png?text=M" alt="MindMate Bot" data-ai-hint="bot avatar"/>
-                  <AvatarFallback>M</AvatarFallback>
-                </Avatar>
-              )}
+          {messages.map((message) => {
+            let userAvatarInitials = 'U';
+            let userAvatarAlt = t('anonymousUser');
+
+            if (message.type === 'user' && user) {
+              const firstInitial = (user.firstName && typeof user.firstName === 'string' && user.firstName.length > 0) ? user.firstName[0].toUpperCase() : '';
+              const lastInitial = (user.lastName && typeof user.lastName === 'string' && user.lastName.length > 0) ? user.lastName[0].toUpperCase() : '';
+              const combinedInitials = `${firstInitial}${lastInitial}`;
+              if (combinedInitials.length > 0) {
+                userAvatarInitials = combinedInitials;
+              }
+              if (user.firstName && typeof user.firstName === 'string' && user.firstName.trim().length > 0) {
+                userAvatarAlt = user.firstName;
+              }
+            }
+
+            return (
               <div
-                className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
-                  message.type === 'user'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-card-foreground'
-                }`}
+                key={message.id}
+                className={`flex items-end gap-2 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
               >
-                <p className="text-sm whitespace-pre-wrap">{message.content}</p>
-                <p className="text-xs text-muted-foreground mt-1 text-right">
-                  <ClientFormattedTime timestamp={message.timestamp} />
-                </p>
+                {message.type === 'bot' && (
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://placehold.co/40x40/9B59B6/FFFFFF.png?text=M" alt="MindMate Bot" data-ai-hint="bot avatar"/>
+                    <AvatarFallback>M</AvatarFallback>
+                  </Avatar>
+                )}
+                <div
+                  className={`max-w-[70%] rounded-lg px-4 py-3 shadow-sm ${
+                    message.type === 'user'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-card-foreground'
+                  }`}
+                >
+                  <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                  <p className="text-xs text-muted-foreground mt-1 text-right">
+                    <ClientFormattedTime timestamp={message.timestamp} />
+                  </p>
+                </div>
+                {message.type === 'user' && user && (
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={`https://placehold.co/40x40/5DADE2/FFFFFF.png?text=${userAvatarInitials}`} alt={userAvatarAlt} data-ai-hint="user avatar"/>
+                    <AvatarFallback>{userAvatarInitials}</AvatarFallback>
+                  </Avatar>
+                )}
+                {message.type === 'user' && !user && (
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://placehold.co/40x40/5DADE2/FFFFFF.png?text=U" alt="User" data-ai-hint="user avatar"/>
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                )}
               </div>
-               {message.type === 'user' && user && (
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={`https://placehold.co/40x40/5DADE2/FFFFFF.png?text=${user.firstName[0]}${user.lastName ? user.lastName[0] : ''}`} alt={user.firstName} data-ai-hint="user avatar"/>
-                  <AvatarFallback>{user.firstName[0]}{user.lastName ? user.lastName[0] : ''}</AvatarFallback>
-                </Avatar>
-              )}
-               {message.type === 'user' && !user && (
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/40x40/5DADE2/FFFFFF.png?text=U" alt="User" data-ai-hint="user avatar"/>
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-               )}
-            </div>
-          ))}
+            );
+          })}
           {isTyping && (
             <div className="flex items-end gap-2 justify-start">
                <Avatar className="h-8 w-8">

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -9,7 +10,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,30 +25,44 @@ interface AuthModalProps {
 
 export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalProps) {
   const { t } = useLocalization();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [emailOrPhone, setEmailOrPhone] = useState('');
   const [password, setPassword] = useState('');
 
   const handleAuth = (e: React.FormEvent, mode: 'login' | 'register') => {
     e.preventDefault();
-    // Simulate authentication
-    const userName = mode === 'register' && name ? name : email.split('@')[0] || t('anonymousUser');
+    
+    let userEmail: string | null = null;
+    let userPhone: string | null = null;
+
+    if (emailOrPhone.includes('@')) {
+      userEmail = emailOrPhone;
+    } else {
+      userPhone = emailOrPhone;
+    }
+
     const user: UserProfile = {
-      name: userName,
-      email: email,
+      firstName: mode === 'register' && firstName ? firstName : (userEmail?.split('@')[0] || userPhone || t('anonymousUser')),
+      lastName: mode === 'register' ? lastName : '',
+      email: userEmail,
+      phone: userPhone,
       joinDate: new Date().toISOString().split('T')[0],
     };
     onAuthenticated(user);
     onOpenChange(false);
-    setName('');
-    setEmail('');
+    setFirstName('');
+    setLastName('');
+    setEmailOrPhone('');
     setPassword('');
   };
 
   const handleAnonymousContinue = () => {
     const user: UserProfile = {
-      name: t('anonymousUser'),
+      firstName: t('anonymousUser'),
+      lastName: '',
       email: null,
+      phone: null,
       joinDate: new Date().toISOString().split('T')[0],
     };
     onAuthenticated(user);
@@ -74,8 +88,8 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           <TabsContent value="login">
             <form onSubmit={(e) => handleAuth(e, 'login')} className="space-y-4 py-4">
               <div>
-                <Label htmlFor="login-email">{t('email')}</Label>
-                <Input id="login-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Label htmlFor="login-email-phone">{t('emailOrPhone')}</Label>
+                <Input id="login-email-phone" placeholder="you@example.com / 07..." value={emailOrPhone} onChange={(e) => setEmailOrPhone(e.target.value)} required />
               </div>
               <div>
                 <Label htmlFor="login-password">{t('password')}</Label>
@@ -87,12 +101,16 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           <TabsContent value="register">
             <form onSubmit={(e) => handleAuth(e, 'register')} className="space-y-4 py-4">
               <div>
-                <Label htmlFor="register-name">{t('fullName')}</Label>
-                <Input id="register-name" placeholder={t('fullName')} value={name} onChange={(e) => setName(e.target.value)} required />
+                <Label htmlFor="register-firstname">{t('firstName')}</Label>
+                <Input id="register-firstname" placeholder={t('firstName')} value={firstName} onChange={(e) => setFirstName(e.target.value)} required />
               </div>
               <div>
-                <Label htmlFor="register-email">{t('email')}</Label>
-                <Input id="register-email" type="email" placeholder="you@example.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <Label htmlFor="register-lastname">{t('lastName')}</Label>
+                <Input id="register-lastname" placeholder={t('lastName')} value={lastName} onChange={(e) => setLastName(e.target.value)} required />
+              </div>
+              <div>
+                <Label htmlFor="register-email-phone">{t('emailOrPhone')}</Label>
+                <Input id="register-email-phone" placeholder="you@example.com / 07..." value={emailOrPhone} onChange={(e) => setEmailOrPhone(e.target.value)} required />
               </div>
               <div>
                 <Label htmlFor="register-password">{t('password')}</Label>

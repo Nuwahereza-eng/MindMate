@@ -16,8 +16,10 @@ export const lg = {
   signUp: "Weewandiise", // "Register yourself"
   welcomeBack: "Tukwanirizza nate", // "We welcome you again"
   createAccount: "Gulawo akawunti", // "Open an account"
-  fullName: "Erinnya Eliggule",
+  firstName: "Erinnya Ery'oluberyeberye",
+  lastName: "Erinnya Ery'enkomerero",
   email: "Esimu/Bbaruwa",
+  emailOrPhone: "Esimu/Bbaruwa oba Namba y'Essimu",
   password: "Ekigambo Eky'ekyama",
   needAccount: "Wetaaga akawunti? Weewandiise",
   haveAccount: "Olina akawunti? Yingira",

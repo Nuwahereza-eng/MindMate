@@ -30,13 +30,15 @@ const CRISIS_MARKER = "CRISIS_DETECTED_BY_AI";
 export async function getAIChatResponse(
   userInput: string,
   languageCode: string,
-  chatHistory: Array<{ role: 'user' | 'model'; content: string }>
+  chatHistory: Array<{ role: 'user' | 'model'; content: string }>,
+  userLastName?: string
 ): Promise<{ botResponse: string; isCrisisFromAI: boolean }> {
   try {
     const input: MindMateChatInput = {
       message: userInput,
       languageCode,
-      chatHistory: chatHistory.length > 0 ? chatHistory : undefined, // Pass undefined if history is empty
+      chatHistory: chatHistory.length > 0 ? chatHistory : undefined,
+      userLastName: userLastName || undefined,
     };
     const result = await getMindMateResponseFlow(input);
     
@@ -54,7 +56,7 @@ export async function getAIChatResponse(
     // Fallback or rethrow
     return {
       botResponse: "I'm having a little trouble connecting right now. Please try again in a moment.",
-      isCrisisFromAI: false, 
+      isCrisisFromAI: false,
     };
   }
 }

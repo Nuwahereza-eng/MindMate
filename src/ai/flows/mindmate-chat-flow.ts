@@ -19,6 +19,7 @@ const SimpleChatMessageSchema = z.object({
 const MindMateChatInputSchema = z.object({
   message: z.string().describe('The user_s current message to the MindMate chatbot.'),
   languageCode: z.string().describe("The ISO 639-1 language code for the desired response language (e.g., 'en', 'lg', 'sw', 'run')."),
+  userLastName: z.string().optional().describe("The user's last name, if known."),
   chatHistory: z.array(SimpleChatMessageSchema).optional().describe('The recent conversation history. The last message in the history is the most recent prior message before the current user_s message.'),
 });
 export type MindMateChatInput = z.infer<typeof MindMateChatInputSchema>;
@@ -41,6 +42,10 @@ const mindMateChatPrompt = ai.definePrompt({
 Your goal is to support the user, offer a listening ear, and provide gentle guidance or coping strategies if appropriate.
 Keep your responses concise, natural, helpful, and relevant to the ongoing conversation.
 IMPORTANT: Avoid repeating questions or advice that has already been recently discussed or addressed in the conversation history. Pay close attention to the history to ensure a smooth and intelligent dialogue.
+
+{{#if userLastName}}
+You are speaking with a user whose last name is {{userLastName}}. You can use their last name occasionally to make the conversation more personal, for example, "That's an interesting perspective, {{userLastName}}." or "How can I assist you further, {{userLastName}}?". Use it naturally and not excessively.
+{{/if}}
 
 {{#if chatHistory}}
 Here is the recent conversation history (most recent last):
@@ -82,4 +87,3 @@ const mindMateChatFlow = ai.defineFlow(
     return output!;
   }
 );
-

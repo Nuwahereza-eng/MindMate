@@ -38,13 +38,15 @@ export type NavItemType = {
   labelKey: string;
   icon: React.ElementType;
   premium?: boolean;
-  view?: string; 
-  onClickAction?: () => void; 
+  view?: string;
+  onClickAction?: () => void;
 };
 
 export type UserProfile = {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string | null;
+  phone: string | null;
   joinDate: string;
 };
 

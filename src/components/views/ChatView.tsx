@@ -9,16 +9,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useLocalization } from '@/context/LocalizationContext';
 import { getAIChatResponse } from '@/app/actions';
-import type { Message } from '@/lib/constants';
+import type { Message, UserProfile } from '@/lib/constants';
 import { CRISIS_KEYWORDS } from '@/lib/constants';
 
 interface ChatViewProps {
+  user: UserProfile | null;
   onTriggerCrisisModal: () => void;
 }
 
 // Helper component to ensure timestamp is formatted on the client side
 const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
-  const [formattedTime, setFormattedTime] = useState<string>('...'); 
+  const [formattedTime, setFormattedTime] = useState<string>('...');
 
   useEffect(() => {
     if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
@@ -29,7 +30,7 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
       if (d instanceof Date && !isNaN(d.getTime())) {
         setFormattedTime(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       } else {
-        setFormattedTime(''); 
+        setFormattedTime('');
       }
     }
   }, [timestamp]);
@@ -42,7 +43,7 @@ const CHAT_MESSAGES_STORAGE_KEY = 'afyasync-chatMessages';
 const MAX_CHAT_MESSAGES_STORAGE = 50;
 const CHAT_HISTORY_FOR_AI_LENGTH = 10; // How many recent messages to send to AI
 
-export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
+export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
   const { t, language } = useLocalization();
   
   const [messages, setMessages] = useState<Message[]>([]);
@@ -52,28 +53,24 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Load messages from localStorage on mount
     const storedMessagesRaw = localStorage.getItem(CHAT_MESSAGES_STORAGE_KEY);
     if (storedMessagesRaw) {
       try {
         const parsedMessages: Message[] = JSON.parse(storedMessagesRaw).map((msg: any) => ({
           ...msg,
-          timestamp: new Date(msg.timestamp) // Ensure timestamp is a Date object
+          timestamp: new Date(msg.timestamp)
         }));
         setMessages(parsedMessages);
       } catch (e) {
         console.error("Error parsing stored chat messages:", e);
-        // Fallback to initial greeting if parsing fails
         setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
       }
     } else {
-      // Initialize with the bot greeting if no stored messages
       setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
     }
-  }, []); // Empty dependency array: run only on mount
+  }, []);
 
 
-  // Update initial greeting if language changes AND it's the only message
   useEffect(() => {
     setMessages(prevMessages => {
       if (prevMessages.length === 1 && prevMessages[0].id === INITIAL_GREETING_ID && prevMessages[0].type === 'bot') {
@@ -81,22 +78,20 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       }
       return prevMessages;
     });
-  }, [t]); // Re-run if translation function 't' changes
+  }, [t]);
 
-  // Save messages to localStorage whenever they change
   useEffect(() => {
-    if (messages.length > 0) { // Only save if there are messages (avoid saving empty initial state)
+    if (messages.length > 0) {
       const limitedMessages = messages.slice(-MAX_CHAT_MESSAGES_STORAGE);
       localStorage.setItem(CHAT_MESSAGES_STORAGE_KEY, JSON.stringify(limitedMessages));
     }
   }, [messages]);
 
-  // Scroll to bottom effect
   useEffect(() => {
     if (scrollAreaRef.current) {
       scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
     }
-  }, [messages, isTyping]); // Add isTyping to dependencies to scroll when typing indicator appears
+  }, [messages, isTyping]);
 
 
   const handleSendMessage = async () => {
@@ -109,13 +104,11 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       timestamp: new Date(),
     };
     
-    // Use a functional update to ensure we're working with the latest state
-    // and prepare history *before* adding the new user message to the state that will be passed to AI
     const currentInput = inputMessage;
     setInputMessage('');
     
     const historyToPass = messages
-      .slice(-CHAT_HISTORY_FOR_AI_LENGTH) 
+      .slice(-CHAT_HISTORY_FOR_AI_LENGTH)
       .map(msg => ({
         role: msg.type === 'user' ? ('user' as const) : ('model' as const),
         content: msg.content,
@@ -124,8 +117,10 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
     setMessages(prev => [...prev, userMessage]);
     setIsTyping(true);
 
+    const userLastName = user && user.lastName ? user.lastName : undefined;
+
     try {
-      const aiChatResult = await getAIChatResponse(currentInput, language, historyToPass);
+      const aiChatResult = await getAIChatResponse(currentInput, language, historyToPass, userLastName);
       let botResponseContent = aiChatResult.botResponse;
       
       const lowerMessage = currentInput.toLowerCase();
@@ -135,15 +130,12 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
       if (isCrisis) {
         onTriggerCrisisModal();
         if (!aiChatResult.isCrisisFromAI && isCrisisFromKeywords) {
-          // If AI didn't detect crisis but keywords did, still use a crisis-aware message.
-          // The AI prompt is designed to output a crisis message itself if it detects it.
-          // This might override AI if it missed it but keywords caught it.
            botResponseContent = t('crisisWarning');
         }
       }
       
       const botMessage: Message = {
-        id: Date.now() + 1, 
+        id: Date.now() + 1,
         type: 'bot',
         content: botResponseContent,
         timestamp: new Date(),
@@ -192,12 +184,18 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
                   <ClientFormattedTime timestamp={message.timestamp} />
                 </p>
               </div>
-               {message.type === 'user' && (
+               {message.type === 'user' && user && (
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={`https://placehold.co/40x40/5DADE2/FFFFFF.png?text=${user.firstName[0]}${user.lastName ? user.lastName[0] : ''}`} alt={user.firstName} data-ai-hint="user avatar"/>
+                  <AvatarFallback>{user.firstName[0]}{user.lastName ? user.lastName[0] : ''}</AvatarFallback>
+                </Avatar>
+              )}
+               {message.type === 'user' && !user && (
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="https://placehold.co/40x40/5DADE2/FFFFFF.png?text=U" alt="User" data-ai-hint="user avatar"/>
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
-              )}
+               )}
             </div>
           ))}
           {isTyping && (
@@ -225,23 +223,22 @@ export function ChatView({ onTriggerCrisisModal }: ChatViewProps) {
           onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
           placeholder={t('chatPlaceholder')}
           className="flex-1"
-          disabled={isTyping}
+          disabled={isTyping || !user} // Disable if no user is logged in
         />
         <Button
           variant="ghost"
           size="icon"
           onClick={() => setVoiceMode(!voiceMode)}
-          disabled={isTyping}
+          disabled={isTyping || !user}
           className={voiceMode ? 'text-destructive' : ''}
           aria-label={voiceMode ? "Turn off voice mode" : "Turn on voice mode"}
         >
           {voiceMode ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
         </Button>
-        <Button onClick={handleSendMessage} disabled={isTyping || !inputMessage.trim()} aria-label="Send message">
+        <Button onClick={handleSendMessage} disabled={isTyping || !inputMessage.trim() || !user} aria-label="Send message">
           <Send className="h-5 w-5" />
         </Button>
       </div>
     </div>
   );
 }
-

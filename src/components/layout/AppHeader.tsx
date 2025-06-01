@@ -28,36 +28,44 @@ interface AppHeaderProps {
   isMobileLayout: boolean;
 }
 
-export function AppHeader({ 
-  user, 
-  isPremium, 
-  currentViewNavItem, 
-  onToggleMobileMenu, 
+export function AppHeader({
+  user,
+  isPremium,
+  currentViewNavItem,
+  onToggleMobileMenu,
   onSignIn,
   onLogout,
   isMobileLayout
 }: AppHeaderProps) {
   const { t } = useLocalization();
 
-  const getInitials = (name: string) => {
-    if (!name) return 'U';
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  const getInitials = (firstName?: string, lastName?: string) => {
+    if (!firstName) return 'U';
+    let initials = firstName[0];
+    if (lastName && lastName[0]) {
+      initials += lastName[0];
+    }
+    return initials.toUpperCase();
   }
 
   const userAvatarDropdown = user && (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className={`cursor-pointer ${isMobileLayout ? 'h-8 w-8' : 'h-9 w-9'}`}>
-          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.name)}`} alt={user.name} data-ai-hint="profile avatar" />
-          <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.firstName, user.lastName)}`} alt={`${user.firstName} ${user.lastName}`} data-ai-hint="profile avatar" />
+          <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>{t('myAccount')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="px-2 py-1.5">
-          <p className="text-sm font-medium">{user.name}</p>
-          {user.email && <p className="text-xs text-muted-foreground">{user.email}</p>}
+          <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
+          {(user.email || user.phone) && (
+            <p className="text-xs text-muted-foreground">
+              {user.email || user.phone}
+            </p>
+          )}
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={onLogout}>
@@ -99,7 +107,7 @@ export function AppHeader({
         {currentViewNavItem ? t(currentViewNavItem.labelKey) : t('appName')}
       </h1>
       <div className="flex items-center gap-4">
-        {user && (
+        {user && user.firstName !== t('anonymousUser') && (
           <div className="flex items-center text-sm text-muted-foreground">
             <CalendarIcon className="mr-2 h-4 w-4" />
             <span>{t('joined')} {new Date(user.joinDate).toLocaleDateString()}</span>

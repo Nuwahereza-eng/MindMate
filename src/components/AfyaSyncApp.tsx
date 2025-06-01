@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  MessageCircle, Settings, Heart, Zap, BookOpen, ShieldAlert, Menu as MenuIcon, Award, Users
+  MessageCircle, Settings, Heart, Zap, BookOpen, ShieldAlert, Users, Award // Added Award here
 } from 'lucide-react';
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
@@ -16,10 +16,9 @@ import { PremiumView } from '@/components/views/PremiumView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { AuthModal } from '@/components/modals/AuthModal';
 import { CrisisModal } from '@/components/modals/CrisisModal';
-import { Button } from '@/components/ui/button';
 import { useLocalization } from '@/context/LocalizationContext';
 import type { UserProfile, NavItemType } from '@/lib/constants';
-import { useIsMobile } from '@/hooks/use-mobile'; 
+import { useIsMobile } from '@/hooks/use-mobile';
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { toast } from "@/hooks/use-toast";
 
@@ -34,7 +33,7 @@ export default function AfyaSyncApp() {
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isMobileLayout = useIsMobile(); 
+  const isMobileLayout = useIsMobile();
 
   const NAV_ITEMS: NavItemType[] = [
     { id: 'chat', labelKey: 'navChat', icon: MessageCircle, view: 'chat' },
@@ -43,10 +42,10 @@ export default function AfyaSyncApp() {
     { id: 'exercises', labelKey: 'navWellness', icon: Zap, view: 'exercises' },
     { id: 'therapists', labelKey: 'navTherapists', icon: Users, premium: true, view: 'therapists' },
     { id: 'premium', labelKey: 'navPremium', icon: Award, view: 'premium' },
-    { 
-      id: 'emergency', 
-      labelKey: 'navEmergencySupport', 
-      icon: ShieldAlert, 
+    {
+      id: 'emergency',
+      labelKey: 'navEmergencySupport',
+      icon: ShieldAlert,
       onClickAction: () => setShowCrisisModal(true),
     },
     { id: 'settings', labelKey: 'navSettings', icon: Settings, view: 'settings' },
@@ -56,6 +55,9 @@ export default function AfyaSyncApp() {
     const storedUser = localStorage.getItem('afyasync-user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+    } else {
+      // If no user, prompt for authentication
+      setShowAuthModal(true);
     }
     const storedPremium = localStorage.getItem('afyasync-isPremium');
     if (storedPremium) {
@@ -66,8 +68,8 @@ export default function AfyaSyncApp() {
   const handleAuthentication = (authenticatedUser: UserProfile) => {
     setUser(authenticatedUser);
     localStorage.setItem('afyasync-user', JSON.stringify(authenticatedUser));
-    if(authenticatedUser.name !== t('anonymousUser')) { 
-        toast({ title: t('welcomeBack') + `, ${authenticatedUser.name}!` });
+    if (authenticatedUser.firstName !== t('anonymousUser')) {
+        toast({ title: t('welcomeBack') + `, ${authenticatedUser.firstName}!` });
     }
   };
 
@@ -76,8 +78,9 @@ export default function AfyaSyncApp() {
     setIsPremium(false);
     localStorage.removeItem('afyasync-user');
     localStorage.removeItem('afyasync-isPremium');
-    setCurrentView('chat'); // Or your desired default view after logout
+    setCurrentView('chat');
     toast({ title: t('loggedOutSuccessfully') });
+    setShowAuthModal(true); // Prompt for login after logout
   };
 
   const handleSetPremium = (premiumStatus: boolean) => {
@@ -86,9 +89,9 @@ export default function AfyaSyncApp() {
   };
 
   const handleNavigate = (view: string) => {
-    const navItem = NAV_ITEMS.find(item => item.view === view || (item.onClickAction && item.id === view) ); 
-    if (navItem && navItem.view) { 
-      if (navItem.premium && !isPremium && user && user.name !== t('anonymousUser')) {
+    const navItem = NAV_ITEMS.find(item => item.view === view || (item.onClickAction && item.id === view) );
+    if (navItem && navItem.view) {
+      if (navItem.premium && !isPremium && user && user.firstName !== t('anonymousUser')) {
         setCurrentView('premium');
         toast({ title: t('accessPremiumFeature'), description: t('upgradeToAccess', {feature: t(navItem.labelKey) }) });
       } else {
@@ -99,27 +102,32 @@ export default function AfyaSyncApp() {
     if (isMobileLayout) setIsMobileMenuOpen(false);
   };
   
-  const currentViewNavItem = useMemo(() => NAV_ITEMS.find(item => item.view === currentView), [currentView, NAV_ITEMS]);
+  const currentViewNavItem = useMemo(() => NAV_ITEMS.find(item => item.view === currentView), [currentView, NAV_ITEMS, t]); 
 
   const renderView = () => {
+    if (!user && currentView !== 'settings') { // Allow settings view for anonymous to change language/theme
+      return <ChatView user={null} onTriggerCrisisModal={() => setShowCrisisModal(true)} />; // Or a placeholder asking to login
+    }
     switch (currentView) {
-      case 'chat': return <ChatView onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
+      case 'chat': return <ChatView user={user} onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
       case 'mood': return <MoodTrackerView isPremium={isPremium} />;
       case 'journal': return <JournalView />;
       case 'exercises': return <ExercisesView isPremium={isPremium} onNavigateToPremium={() => handleNavigate('premium')} />;
       case 'therapists': return <TherapistsView />;
       case 'premium': return <PremiumView isPremium={isPremium} onSetPremium={handleSetPremium} />;
       case 'settings': return <SettingsView />;
-      default: return <ChatView onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
+      default: return <ChatView user={user} onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
     }
   };
 
   const sidebarComponent = (
      <AppSidebar
+        user={user}
+        isPremium={isPremium}
         navItems={NAV_ITEMS}
         currentView={currentView}
         onNavigate={handleNavigate}
-        className="h-full border-r bg-background" 
+        className="h-full border-r bg-sidebar" 
       />
   );
 
@@ -135,10 +143,9 @@ export default function AfyaSyncApp() {
         {isMobileLayout && (
            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              {/* This div can be styled if you need a visible trigger, or kept empty for programmatic control */}
               <div />
             </SheetTrigger>
-            <SheetContent side="left" className="p-0 w-64 sm:w-72" title={t('appName')}>
+            <SheetContent side="left" className="p-0 w-64 sm:w-72 bg-sidebar text-sidebar-foreground" title={t('appName')}>
                {sidebarComponent}
             </SheetContent>
           </Sheet>
@@ -153,19 +160,19 @@ export default function AfyaSyncApp() {
             onLogout={handleLogout}
             isMobileLayout={isMobileLayout}
         />
-        <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0 pb-6' : 'p-4 sm:px-6 sm:py-0 md:gap-8 pb-24'}`}>
+        <main className={`flex-1 overflow-auto ${isMobileLayout ? 'p-0 pb-6' : 'p-4 sm:px-6 sm:py-0 md:gap-8 pb-6'}`}>
           {renderView()}
         </main>
       </div>
 
-      <AuthModal 
-        isOpen={showAuthModal} 
-        onOpenChange={setShowAuthModal} 
-        onAuthenticated={handleAuthentication} 
+      <AuthModal
+        isOpen={showAuthModal && !user} 
+        onOpenChange={setShowAuthModal}
+        onAuthenticated={handleAuthentication}
       />
-      <CrisisModal 
-        isOpen={showCrisisModal} 
-        onOpenChange={setShowCrisisModal} 
+      <CrisisModal
+        isOpen={showCrisisModal}
+        onOpenChange={setShowCrisisModal}
       />
     </div>
   );

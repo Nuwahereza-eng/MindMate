@@ -16,8 +16,10 @@ export const en = {
   signUp: "Sign Up",
   welcomeBack: "Welcome Back",
   createAccount: "Create Account",
-  fullName: "Full Name",
+  firstName: "First Name",
+  lastName: "Last Name",
   email: "Email",
+  emailOrPhone: "Email or Phone Number",
   password: "Password",
   needAccount: "Need an account? Sign up",
   haveAccount: "Already have an account? Sign in",
@@ -60,7 +62,7 @@ export const en = {
   // Wellness Exercises
   wellnessExercisesTitle: "Wellness Exercises",
   breathingExercises: "Breathing Exercises",
-  dailyAffirmations: "Daily Affirmations", // Kept for general reference if needed
+  dailyAffirmations: "Daily Affirmations",
   personalizedAffirmations: "Personalized Affirmations",
   generateMyAffirmations: "✨ Get My Personalized Affirmations",
   generatingAffirmations: "Generating Affirmations",
@@ -83,7 +85,7 @@ export const en = {
   breathingExerciseBellyName: "Deep Belly Breathing",
   breathingExerciseBellyDuration: "5 min",
   breathingExerciseBellyDesc: "Focus on expanding your diaphragm",
-  affirmation1: "You are stronger than you think", // Kept as fallback or general
+  affirmation1: "You are stronger than you think",
   affirmation2: "This feeling is temporary and will pass",
   affirmation3: "You deserve love and happiness",
   affirmation4: "Every breath you take is a victory",

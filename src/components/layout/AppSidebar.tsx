@@ -44,7 +44,7 @@ export function AppSidebar({
           <ul className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isLocked = item.premium && !isPremium && user && user.firstName !== t('anonymousUser'); 
+              const isLocked = item.premium && !isPremium && user; 
               
               return (
                 <li key={item.id}>
@@ -52,6 +52,10 @@ export function AppSidebar({
                     variant={item.view && currentView === item.view ? 'secondary' : 'ghost'}
                     className={`w-full justify-start ${isLocked ? 'opacity-60 cursor-not-allowed' : ''}`}
                     onClick={() => {
+                      if (!user && (item.view !== 'settings' && item.id !== 'emergency')) {
+                          onNavigate('chat'); // Redirect to chat which will show AuthModal
+                          return;
+                      }
                       if (item.onClickAction) {
                         item.onClickAction();
                         onNavigate(currentView); 

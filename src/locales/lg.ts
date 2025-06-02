@@ -31,8 +31,6 @@ export const lg = {
   signInSuccessGoogle: "Oyingidde ne Google bulungi!",
   signInErrorGoogle: "Okuyingira ne Google Kulemeredde",
   signInSuccessPhone: "Oyingidde n'Essimu bulungi!",
-  continueFacebook: "Yingirira ne Facebook",
-  continueAnonymously: "Yingirira nga tomanyise",
   logout: "Fuluma",
   loggedOutSuccessfully: "Ofulumye bulungi",
   logoutFailed: "Okuggyamu Kulemeredde",
@@ -51,6 +49,7 @@ export const lg = {
   recaptchaNotReady: "reCAPTCHA tetennategeka. Linda akaseera.",
   recaptchaNotReadyOrFailed: "reCAPTCHA tetennategeka oba yalemwa. Gezaako nate oba kakasa nti etegekeddwa bulungi.",
   enterPhoneNumberToVerify: "Kakasa {{phoneNumber}}",
+  ensureCountryCode: "Kakasa nti namba yo ey'essimu erimu koodi y'eggwanga (okugeza, +12223334444).",
   back: "Ddayo",
   user: "Omukozesa",
   tryAgainLater: "Gezaako oluvannyuma.",
@@ -61,6 +60,7 @@ export const lg = {
   codeExpiredFirebase: "Koodi y'okukakasa eggwaako. Saba endala.",
   // Chat
   chatPlaceholder: "Wandika obubaka bwo...",
+  signInToChat: "Yingira okusobola okunyumya",
   botGreeting: "Mbalamusizza! Nze MindMate, mukwano gwo akufaako mu by'obulamu bw'omwoyo. Otya leero?",
   crisisWarning: "Ndi mweraliikirivu nnyo olw'ebyo by'ogambye. Enneewulira yo ntegeerekeka, naye njagala okakasa nti ofuna obuyambi bw'owetaagawo. Funa abakugu mu kuyamba abali mu bizibu.",
   feelingAnxiousResponse: "Ntegedde owulira nga oli mweraliikirivu. Kino kya bulijjo. Oyagala nkuyise mu kazannyirizi k'okussa obulungi, oba oyagala twogere ku ekyo ekikweraliikiriza?",
@@ -178,12 +178,9 @@ export const lg = {
   error: "Wabaddewo ensobi. Gezaako nate.",
   submit: "Weereza",
   close: "Galawo",
-  anonymousUser: "Omukozesa Atamanyise",
   freeMember: "Mmemba wa Bwereere",
   premiumMember: "Mmemba ow'Omuwendo",
   theme: "Endabika",
   accessPremiumFeature: "Funa Eby'omuwendo",
   upgradeToAccess: "Olina okulongoosa okufuna {{feature}}.",
 };
-
-    

@@ -77,7 +77,9 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
         setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
       }
     } else {
-      // No user, or user UID not yet available
+      // No user (e.g. initial load before auth, or anonymous user if that was enabled)
+      // If user is null, it means AuthModal should be shown.
+      // We still give a greeting for the UI layout before AuthModal potentially overlays.
       setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
     }
   }, [user?.uid, t]);
@@ -99,10 +101,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
     const storageKey = getStorageKey(currentUserId);
 
     if (storageKey && messages.length > 0) {
-      // Don't save if it's just the initial greeting and user hasn't interacted
       if (messages.length === 1 && messages[0].id === INITIAL_GREETING_ID && messages[0].type === 'bot') {
-        // Optionally, clear storage if only greeting exists for this user key to prevent stale greetings
-        // localStorage.removeItem(storageKey); 
         return;
       }
       const limitedMessages = messages.slice(-MAX_CHAT_MESSAGES_STORAGE);
@@ -118,7 +117,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
 
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !user) return; // Ensure user exists before sending
+    if (!inputMessage.trim() || !user) return; 
 
     const userMessage: Message = {
       id: Date.now(),
@@ -131,7 +130,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
     setInputMessage('');
     
     const historyToPass = messages
-      .filter(msg => msg.id !== INITIAL_GREETING_ID) // Don't pass the initial greeting to AI
+      .filter(msg => msg.id !== INITIAL_GREETING_ID) 
       .slice(-CHAT_HISTORY_FOR_AI_LENGTH)
       .map(msg => ({
         role: msg.type === 'user' ? ('user' as const) : ('model' as const),
@@ -187,13 +186,13 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
         <div className="space-y-4">
           {messages.map((message) => {
             let userAvatarInitials = 'U';
-            let userAvatarAlt = t('anonymousUser');
+            let userAvatarAlt = t('user');
 
             if (message.type === 'user' && user) {
-              const firstInitial = (user.firstName && typeof user.firstName === 'string' && user.firstName.length > 0) ? user.firstName[0].toUpperCase() : '';
+              const firstInitial = (user.firstName && typeof user.firstName === 'string' && user.firstName.length > 0 && user.firstName !== t('user')) ? user.firstName[0].toUpperCase() : '';
               const lastInitial = (user.lastName && typeof user.lastName === 'string' && user.lastName.length > 0) ? user.lastName[0].toUpperCase() : '';
               userAvatarInitials = `${firstInitial}${lastInitial}`.trim() || 'U';
-              if (user.firstName && typeof user.firstName === 'string' && user.firstName.trim().length > 0 && user.firstName !== t('anonymousUser')) {
+              if (user.firstName && typeof user.firstName === 'string' && user.firstName.trim().length > 0 && user.firstName !== t('user')) {
                 userAvatarAlt = user.firstName;
               }
             }
@@ -227,7 +226,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
                     <AvatarFallback>{userAvatarInitials}</AvatarFallback>
                   </Avatar>
                 )}
-                {message.type === 'user' && !user && (
+                {message.type === 'user' && !user && ( // Should not happen if chat input is disabled for !user
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="https://placehold.co/40x40/5DADE2/FFFFFF.png?text=U" alt="User" data-ai-hint="user avatar"/>
                     <AvatarFallback>U</AvatarFallback>
@@ -259,7 +258,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
           value={inputMessage}
           onChange={(e) => setInputMessage(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
-          placeholder={t('chatPlaceholder')}
+          placeholder={user ? t('chatPlaceholder') : t('signInToChat')}
           className="flex-1"
           disabled={isTyping || !user} 
         />

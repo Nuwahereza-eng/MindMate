@@ -31,8 +31,6 @@ export const en = {
   signInSuccessGoogle: "Signed in with Google successfully!",
   signInErrorGoogle: "Google Sign-In Failed",
   signInSuccessPhone: "Signed in with Phone successfully!",
-  continueFacebook: "Continue with Facebook",
-  continueAnonymously: "Continue anonymously",
   logout: "Logout",
   loggedOutSuccessfully: "Logged out successfully",
   logoutFailed: "Logout Failed",
@@ -51,9 +49,9 @@ export const en = {
   recaptchaNotReady: "reCAPTCHA not ready. Please wait a moment.",
   recaptchaNotReadyOrFailed: "reCAPTCHA not ready or failed. Please try again or ensure it's correctly configured.",
   enterPhoneNumberToVerify: "Verify {{phoneNumber}}",
+  ensureCountryCode: "Please ensure your phone number includes the country code (e.g., +12223334444).",
   back: "Back",
   user: "User", 
-  anonymousUser: "Anonymous User", 
   tryAgainLater: "Please try again later.",
   invalidPhoneNumberFormat: "Invalid phone number format. Please include your country code (e.g., +1234567890).",
   invalidPhoneNumberFirebase: "The phone number is badly formatted.",
@@ -62,6 +60,7 @@ export const en = {
   codeExpiredFirebase: "The verification code has expired. Please request a new one.",
   // Chat
   chatPlaceholder: "Type your message...",
+  signInToChat: "Please sign in to chat",
   botGreeting: "Hello! I'm MindMate, your compassionate mental health companion. How are you feeling today?",
   crisisWarning: "I'm really concerned about what you've shared. Your feelings are valid, but I want to make sure you get the support you need right now. Please consider reaching out to a crisis helpline - they have trained professionals who can help.",
   feelingAnxiousResponse: "I understand you're feeling anxious. That's a very common experience. Would you like me to guide you through a breathing exercise, or would you prefer to talk about what's making you feel this way?",
@@ -192,5 +191,3 @@ export const en = {
   accessPremiumFeature: "Access Premium Feature",
   upgradeToAccess: "Please upgrade to Premium to access {{feature}}.",
 };
-
-    

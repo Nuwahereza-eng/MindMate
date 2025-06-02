@@ -31,8 +31,6 @@ export const run = {
   signInSuccessGoogle: "Watunguka okutaahamu na Google!",
   signInErrorGoogle: "Okutaahamu na Google Kwangire",
   signInSuccessPhone: "Watunguka okutaahamu n'Essimu!",
-  continueFacebook: "Gumisiriza na Facebook",
-  continueAnonymously: "Gumisiriza otamanyirwe",
   logout: "Shuma",
   loggedOutSuccessfully: "Washuma gye",
   logoutFailed: "Okushuma Kwangire",
@@ -51,6 +49,7 @@ export const run = {
   recaptchaNotReady: "reCAPTCHA teratebikanisibwe. Teereza akanya.",
   recaptchaNotReadyOrFailed: "reCAPTCHA teratebikanisibwe nari yaremwa. Gezaho bundi nari hakikisha ngu etebikanisiibwe gye.",
   enterPhoneNumberToVerify: "Hakikisa {{phoneNumber}}",
+  ensureCountryCode: "Hakikisha enamba yaawe ey'essimu erimu koodi y'ihanga (e.g., +12223334444).",
   back: "Garuka",
   user: "Omukozesa",
   tryAgainLater: "Gezaho bwanyima.",
@@ -61,6 +60,7 @@ export const run = {
   codeExpiredFirebase: "Koodi y'okuhakikisa yahwa. Shaba endiijo.",
   // Chat
   chatPlaceholder: "Handiika obutumwa bwaawe...",
+  signInToChat: "Taahamu kugira oganire",
   botGreeting: "Oraire ota! Ndi MindMate, omuhwezi waawe akufaaho aha by'oburungi bw'obwongo. Orire ota erizooba?",
   crisisWarning: "Ninyeraliikirira munonga ahabw'ebyo ebi wagambire. Okucondooza kwaawe nikwetegyerezibwa, kwonka ninyenda kuhakikisha ngu nobona obuhwezi obu orikwenda hati. Tekereza okusherura abakugu omu kuhwera abari omu bizibu.",
   feelingAnxiousResponse: "Ninyetegereza ngu noyehuliira oine obwoba. Eki n'ekyabulijo. Noyenda nkuhwere omu kazanyo k'okwetsya gye, nari noyenda tuganiire aha kikureetera okwehurira otyo?",
@@ -178,12 +178,9 @@ export const run = {
   error: "Habayemo enshobe. Gezaho bundi.",
   submit: "Ohereza",
   close: "Hindura",
-  anonymousUser: "Omukozesa Otamanyirwe",
   freeMember: "Memba w'Obusa",
   premiumMember: "Memba w'Omuhendo",
   theme: "Endabika",
   accessPremiumFeature: "Funa Eby'omuhendo",
   upgradeToAccess: "Oine kuhindura Premium okufuna {{feature}}.",
 };
-
-    

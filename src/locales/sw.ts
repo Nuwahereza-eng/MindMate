@@ -31,8 +31,6 @@ export const sw = {
   signInSuccessGoogle: "Umeingia na Google kwa mafanikio!",
   signInErrorGoogle: "Kuingia na Google Imeshindwa",
   signInSuccessPhone: "Umeingia kwa Simu kwa mafanikio!",
-  continueFacebook: "Endelea na Facebook",
-  continueAnonymously: "Endelea bila kujitambulisha",
   logout: "Ondoka",
   loggedOutSuccessfully: "Umeondoka kwa mafanikio",
   logoutFailed: "Kuondoka Imeshindwa",
@@ -51,6 +49,7 @@ export const sw = {
   recaptchaNotReady: "reCAPTCHA haiko tayari. Tafadhali subiri kidogo.",
   recaptchaNotReadyOrFailed: "reCAPTCHA haiko tayari au imeshindwa. Tafadhali jaribu tena au hakikisha imesanidiwa ipasavyo.",
   enterPhoneNumberToVerify: "Thibitisha {{phoneNumber}}",
+  ensureCountryCode: "Tafadhali hakikisha nambari yako ya simu inajumuisha msimbo wa nchi (k.m., +12223334444).",
   back: "Rudi Nyuma",
   user: "Mtumiaji",
   tryAgainLater: "Tafadhali jaribu tena baadaye.",
@@ -61,6 +60,7 @@ export const sw = {
   codeExpiredFirebase: "Nambari ya uthibitishaji imeisha muda. Tafadhali omba mpya.",
   // Chat
   chatPlaceholder: "Andika ujumbe wako...",
+  signInToChat: "Tafadhali ingia ili kupiga soga",
   botGreeting: "Habari! Mimi ni MindMate, mwenzako mwenye huruma kwa afya ya akili. Unajisikiaje leo?",
   crisisWarning: "Nina wasiwasi sana kuhusu ulichoshiriki. Hisia zako ni halali, lakini nataka kuhakikisha unapata usaidizi unaohitaji sasa hivi. Tafadhali fikiria kuwasiliana na nambari ya dharura - wana wataalamu waliofunzwa wanaoweza kusaidia.",
   feelingAnxiousResponse: "Naelewa unajisikia kuwa na wasiwasi. Hilo ni jambo la kawaida sana. Ungependa nikuongoze kupitia zoezi la kupumua, au ungependa kuzungumza kuhusu kinachokufanya ujisikie hivi?",
@@ -178,12 +178,9 @@ export const sw = {
   error: "Kosa limetokea. Tafadhali jaribu tena.",
   submit: "Wasilisha",
   close: "Funga",
-  anonymousUser: "Mtumiaji Asiyejulikana",
   freeMember: "Mwanachama wa Bure",
   premiumMember: "Mwanachama wa Kulipia",
   theme: "Mandhari",
   accessPremiumFeature: "Fikia Kipengele cha Kulipia",
   upgradeToAccess: "Tafadhali boresha hadi Kulipia ili kufikia {{feature}}.",
 };
-
-    

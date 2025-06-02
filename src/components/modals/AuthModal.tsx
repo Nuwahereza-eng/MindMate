@@ -39,6 +39,7 @@ interface AuthModalProps {
 }
 
 type AuthStep = "initial" | "enterPhoneNumber" | "enterVerificationCode";
+const USER_PROFILE_STORAGE_KEY_PREFIX = 'afyasync-userProfile-';
 
 export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalProps) {
   const { t } = useLocalization();
@@ -66,13 +67,13 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         recaptchaVerifierRef.current = null;
       }
       if (recaptchaContainerRef.current) {
-        recaptchaContainerRef.current.innerHTML = ''; // Visually clear the container
+        recaptchaContainerRef.current.innerHTML = ''; 
       }
     };
 
     if (isOpen && authStep === 'enterPhoneNumber' && !recaptchaVerifierRef.current) {
       if (recaptchaContainerRef.current) {
-        recaptchaContainerRef.current.innerHTML = ''; // Ensure container is clean before rendering
+        recaptchaContainerRef.current.innerHTML = ''; 
         try {
           const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
             'size': 'invisible',
@@ -86,7 +87,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
             },
             'error-callback': (error: any) => {
                 console.error("reCAPTCHA error-callback:", error);
-                toast({ title: t('recaptchaError'), description: t('tryAgainLater'), variant: 'destructive' });
+                toast({ title: t('recaptchaError'), description: (error.message || t('tryAgainLater')), variant: 'destructive' });
                 cleanupRecaptcha();
                 setAuthStep('initial');
               }
@@ -112,7 +113,6 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         }
       } else {
          console.warn("reCAPTCHA container ref not available when trying to initialize.");
-         // Attempt to force a re-render or guide user? For now, leads to re-init on next try.
          setAuthStep("initial"); 
       }
     } else if (!isOpen || authStep !== 'enterPhoneNumber') {
@@ -136,7 +136,6 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     setConfirmationResult(null);
     setIsLoadingGoogle(false);
     setIsLoadingPhone(false);
-    // useEffect cleanup handles reCAPTCHA
   };
   
   const handleOpenChangeWithReset = (open: boolean) => {
@@ -152,10 +151,10 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   const isPhoneNumber = (input: string) => /^\+?[0-9\s\-()]{7,}$/.test(input);
   const formatPhoneNumber = (input: string) => {
     let digits = input.replace(/\D/g, '');
-    if (!input.startsWith('+') && digits.length > 0) { // Ensure digits exist before adding +
+    if (!input.startsWith('+') && digits.length > 0) {
         return `+${digits}`;
     }
-    return input.startsWith('+') ? `+${digits}` : input; // Return `+<digits>` or original if no change needed
+    return input.startsWith('+') ? `+${digits}` : input; 
   };
 
   const handleSubmitForm = async (e: React.FormEvent) => {
@@ -168,13 +167,14 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           return;
       }
       const formattedNum = formatPhoneNumber(emailOrPhone);
-      if (!formattedNum || !/^\+[1-9]\d{1,14}$/.test(formattedNum)) { // Basic E.164 check
-          toast({ title: t('invalidPhoneNumberFormat'), variant: "destructive"});
+      // Basic E.164 check. A more robust library might be needed for production.
+      if (!formattedNum || !/^\+[1-9]\d{1,14}$/.test(formattedNum)) { 
+          toast({ title: t('invalidPhoneNumberFormat'), description: t('ensureCountryCode'), variant: "destructive"});
           return;
       }
       setPhoneNumberForVerification(formattedNum);
       setAuthStep('enterPhoneNumber'); 
-    } else {
+    } else { // Mock Email/Password flow
       let userEmail: string | null = emailOrPhone;
       let userPhone: string | null = null;
       let profileToAuth: UserProfile;
@@ -188,7 +188,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         let storedUid = newUid; 
 
         Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(`${USER_PROFILE_STORAGE_KEY_PREFIX}`)) {
+            if (key.startsWith(USER_PROFILE_STORAGE_KEY_PREFIX)) {
                 try {
                     const storedUser: UserProfile = JSON.parse(localStorage.getItem(key)!);
                     if (userEmail && storedUser.email === userEmail) {
@@ -204,12 +204,12 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         
         profileToAuth = foundStoredUser ? 
           { uid: storedUid, firstName: storedFirstName, lastName: storedLastName, email: userEmail, phone: userPhone, joinDate: storedJoinDate } :
-          { uid: newUid, firstName: userEmail?.split('@')[0] || t('anonymousUser'), lastName: '', email: userEmail, phone: userPhone, joinDate: new Date().toISOString() };
+          { uid: newUid, firstName: userEmail?.split('@')[0] || t('user'), lastName: '', email: userEmail, phone: userPhone, joinDate: new Date().toISOString() };
 
-      } else { 
+      } else { // Register
         profileToAuth = {
           uid: newUid,
-          firstName: firstName || (userEmail?.split('@')[0] || t('anonymousUser')),
+          firstName: firstName || (userEmail?.split('@')[0] || t('user')),
           lastName: lastName || '',
           email: userEmail,
           phone: userPhone,
@@ -224,16 +224,15 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   const handleSendVerificationCode = async () => {
     if (!recaptchaVerifierRef.current) {
       toast({ title: t('recaptchaError'), description: t('recaptchaNotReadyOrFailed'), variant: "destructive" });
-      setAuthStep('initial'); // Go back to allow re-trigger reCAPTCHA
+      setAuthStep('initial'); 
       setTimeout(() => {
-        if (isPhoneNumber(emailOrPhone)) { // Check if we still have a phone number to proceed
+        if (isPhoneNumber(emailOrPhone)) { 
           const formattedNum = formatPhoneNumber(emailOrPhone);
            if (formattedNum && /^\+[1-9]\d{1,14}$/.test(formattedNum)) {
              setPhoneNumberForVerification(formattedNum);
              setAuthStep('enterPhoneNumber');
            } else {
-             // If phone number became invalid or was cleared, go fully back
-             setEmailOrPhone(''); // Clear potentially invalid input
+             setEmailOrPhone(''); 
            }
         } else {
              setEmailOrPhone('');
@@ -258,10 +257,10 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       toast({ title: t('errorSendingCode'), description: errorMessage, variant: "destructive" });
       
       if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear(); // Clear current verifier
+        recaptchaVerifierRef.current.clear(); 
         recaptchaVerifierRef.current = null;
       }
-      setAuthStep('enterPhoneNumber'); // Stay on phone input to re-trigger reCAPTCHA init via useEffect
+      setAuthStep('enterPhoneNumber'); 
     } finally {
       setIsLoadingPhone(false);
     }
@@ -290,13 +289,13 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       }
     } catch (error: any) {
       console.error("Error verifying code:", error);
-      let ErrorMessage = error.message;
+      let errorMessage = error.message || t('tryAgainLater');
       if (error.code === 'auth/invalid-verification-code') {
-         ErrorMessage = t('invalidVerificationCodeFirebase');
+         errorMessage = t('invalidVerificationCodeFirebase');
       } else if (error.code === 'auth/code-expired') {
-         ErrorMessage = t('codeExpiredFirebase');
+         errorMessage = t('codeExpiredFirebase');
       }
-      toast({ title: t('errorVerifyingCode'), description: ErrorMessage, variant: "destructive" });
+      toast({ title: t('errorVerifyingCode'), description: errorMessage, variant: "destructive" });
     } finally {
       setIsLoadingPhone(false);
     }
@@ -307,6 +306,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
+      // onAuthStateChanged in AfyaSyncApp will handle the rest
       handleOpenChangeWithReset(false);
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
@@ -315,21 +315,6 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       setIsLoadingGoogle(false);
     }
   };
-
-  const handleAnonymousContinue = () => {
-    const user: UserProfile = {
-      uid: `anon-${Date.now()}`,
-      firstName: t('anonymousUser'),
-      lastName: '',
-      email: null,
-      phone: null,
-      joinDate: new Date().toISOString(),
-    };
-    onAuthenticated(user);
-    handleOpenChangeWithReset(false);
-  };
-
-  const USER_PROFILE_STORAGE_KEY_PREFIX = 'afyasync-userProfile-';
 
   const renderInitialStep = () => (
     <Tabs defaultValue={currentTab} onValueChange={(value) => setCurrentTab(value as 'login' | 'register')} className="w-full">
@@ -392,9 +377,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         </Button>
       </div>
       <DialogFooter className="mt-4 sm:justify-center">
-        <Button variant="link" onClick={handleAnonymousContinue} className="text-sm" disabled={isLoadingPhone || isLoadingGoogle}>
-          {t('continueAnonymously')}
-        </Button>
+        {/* Anonymous continue button removed */}
       </DialogFooter>
     </Tabs>
   );
@@ -402,7 +385,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   const renderEnterPhoneNumberStep = () => (
     <>
       <DialogHeader className="mb-4">
-        <Button variant="ghost" size="icon" onClick={() => { setAuthStep('initial'); setEmailOrPhone(phoneNumberForVerification); /* Keep phone number in input */ }} className="absolute left-4 top-4">
+        <Button variant="ghost" size="icon" onClick={() => { setAuthStep('initial'); setEmailOrPhone(phoneNumberForVerification); }} className="absolute left-4 top-4">
            &larr; <span className="sr-only">{t('back')}</span>
         </Button>
         <DialogTitle className="text-center text-xl font-bold pt-8">{currentTab === 'register' ? t('signUpWithPhone') : t('signInWithPhone')}</DialogTitle>
@@ -463,5 +446,3 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     </Dialog>
   );
 }
-
-    

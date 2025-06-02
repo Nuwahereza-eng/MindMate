@@ -42,7 +42,7 @@ export function AppHeader({
   const { t } = useLocalization();
 
   const getInitials = (firstName?: string, lastName?: string) => {
-    if (!firstName || firstName === t('anonymousUser') || firstName.trim() === '') return 'U';
+    if (!firstName || firstName.trim() === '' || firstName === t('user')) return 'U';
     let initials = firstName[0];
     if (lastName && lastName.length > 0) {
       initials += lastName[0];
@@ -58,7 +58,7 @@ export function AppHeader({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className={`cursor-pointer ${isMobileLayout ? 'h-8 w-8' : 'h-9 w-9'}`}>
-          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.firstName, user.lastName)}`} alt={userDisplayName} data-ai-hint="profile avatar" />
+          <AvatarImage src={`https://placehold.co/40x40.png?text=${getInitials(user.firstName, user.lastName)}`} alt={userDisplayName} data-ai-hint="profile avatar"/>
           <AvatarFallback>{getInitials(user.firstName, user.lastName)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -115,7 +115,7 @@ export function AppHeader({
         {currentViewNavItem ? t(currentViewNavItem.labelKey) : t('appName')}
       </h1>
       <div className="flex items-center gap-4">
-        {user && user.firstName !== t('anonymousUser') && (
+        {user && user.firstName && user.firstName !== t('user') && (
           <div className="flex items-center text-sm text-muted-foreground">
             <CalendarIcon className="mr-2 h-4 w-4" />
             <span>{t('joined')} {new Date(user.joinDate).toLocaleDateString()}</span>

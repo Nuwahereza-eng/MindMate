@@ -25,7 +25,6 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
     if (timestamp instanceof Date && !isNaN(timestamp.getTime())) {
       setFormattedTime(timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     } else {
-      // Handle cases where timestamp might be a string after JSON.parse from localStorage
       const d = new Date(timestamp);
       if (d instanceof Date && !isNaN(d.getTime())) {
         setFormattedTime(d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
@@ -38,10 +37,10 @@ const ClientFormattedTime = ({ timestamp }: { timestamp: Date }) => {
   return <>{formattedTime}</>;
 };
 
-const INITIAL_GREETING_ID = -1; // Stable ID for the initial greeting message
-const CHAT_MESSAGES_STORAGE_KEY = 'afyasync-chatMessages';
+const INITIAL_GREETING_ID = -1; 
+const CHAT_MESSAGES_STORAGE_KEY_PREFIX = 'afyasync-chatMessages-';
 const MAX_CHAT_MESSAGES_STORAGE = 50;
-const CHAT_HISTORY_FOR_AI_LENGTH = 10; // How many recent messages to send to AI
+const CHAT_HISTORY_FOR_AI_LENGTH = 10;
 
 export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
   const { t, language } = useLocalization();
@@ -52,27 +51,40 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
   const [voiceMode, setVoiceMode] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
+  const getStorageKey = (uid: string | undefined): string | null => {
+    return uid ? `${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${uid}` : null;
+  };
+
+  // Load messages effect
   useEffect(() => {
-    const storedMessagesRaw = localStorage.getItem(CHAT_MESSAGES_STORAGE_KEY);
-    if (storedMessagesRaw) {
-      try {
-        const parsedMessages: Message[] = JSON.parse(storedMessagesRaw).map((msg: any) => ({
-          ...msg,
-          timestamp: new Date(msg.timestamp)
-        }));
-        setMessages(parsedMessages);
-      } catch (e) {
-        console.error("Error parsing stored chat messages:", e);
+    const currentUserId = user?.uid;
+    const storageKey = getStorageKey(currentUserId);
+
+    if (storageKey) {
+      const storedMessagesRaw = localStorage.getItem(storageKey);
+      if (storedMessagesRaw) {
+        try {
+          const parsedMessages: Message[] = JSON.parse(storedMessagesRaw).map((msg: any) => ({
+            ...msg,
+            timestamp: new Date(msg.timestamp)
+          }));
+          setMessages(parsedMessages);
+        } catch (e) {
+          console.error("Error parsing stored chat messages:", e);
+          setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
+        }
+      } else {
         setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
       }
     } else {
+      // No user, or user UID not yet available
       setMessages([{ id: INITIAL_GREETING_ID, type: 'bot', content: t('botGreeting'), timestamp: new Date() }]);
     }
-  }, []);
+  }, [user?.uid, t]);
 
 
+  // Update initial greeting if language changes and it's the only message
   useEffect(() => {
-    // Update initial greeting if language changes and it's the only message
     setMessages(prevMessages => {
       if (prevMessages.length === 1 && prevMessages[0].id === INITIAL_GREETING_ID && prevMessages[0].type === 'bot') {
         return [{ ...prevMessages[0], content: t('botGreeting') }];
@@ -81,12 +93,22 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
     });
   }, [t]);
 
+  // Save messages effect
   useEffect(() => {
-    if (messages.length > 0) {
+    const currentUserId = user?.uid;
+    const storageKey = getStorageKey(currentUserId);
+
+    if (storageKey && messages.length > 0) {
+      // Don't save if it's just the initial greeting and user hasn't interacted
+      if (messages.length === 1 && messages[0].id === INITIAL_GREETING_ID && messages[0].type === 'bot') {
+        // Optionally, clear storage if only greeting exists for this user key to prevent stale greetings
+        // localStorage.removeItem(storageKey); 
+        return;
+      }
       const limitedMessages = messages.slice(-MAX_CHAT_MESSAGES_STORAGE);
-      localStorage.setItem(CHAT_MESSAGES_STORAGE_KEY, JSON.stringify(limitedMessages));
+      localStorage.setItem(storageKey, JSON.stringify(limitedMessages));
     }
-  }, [messages]);
+  }, [messages, user?.uid]);
 
   useEffect(() => {
     if (scrollAreaRef.current) {
@@ -96,7 +118,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
 
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+    if (!inputMessage.trim() || !user) return; // Ensure user exists before sending
 
     const userMessage: Message = {
       id: Date.now(),
@@ -109,6 +131,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
     setInputMessage('');
     
     const historyToPass = messages
+      .filter(msg => msg.id !== INITIAL_GREETING_ID) // Don't pass the initial greeting to AI
       .slice(-CHAT_HISTORY_FOR_AI_LENGTH)
       .map(msg => ({
         role: msg.type === 'user' ? ('user' as const) : ('model' as const),
@@ -169,11 +192,8 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
             if (message.type === 'user' && user) {
               const firstInitial = (user.firstName && typeof user.firstName === 'string' && user.firstName.length > 0) ? user.firstName[0].toUpperCase() : '';
               const lastInitial = (user.lastName && typeof user.lastName === 'string' && user.lastName.length > 0) ? user.lastName[0].toUpperCase() : '';
-              const combinedInitials = `${firstInitial}${lastInitial}`;
-              if (combinedInitials.length > 0) {
-                userAvatarInitials = combinedInitials;
-              }
-              if (user.firstName && typeof user.firstName === 'string' && user.firstName.trim().length > 0) {
+              userAvatarInitials = `${firstInitial}${lastInitial}`.trim() || 'U';
+              if (user.firstName && typeof user.firstName === 'string' && user.firstName.trim().length > 0 && user.firstName !== t('anonymousUser')) {
                 userAvatarAlt = user.firstName;
               }
             }
@@ -241,7 +261,7 @@ export function ChatView({ user, onTriggerCrisisModal }: ChatViewProps) {
           onKeyPress={(e) => e.key === 'Enter' && !isTyping && handleSendMessage()}
           placeholder={t('chatPlaceholder')}
           className="flex-1"
-          disabled={isTyping || !user} // Disable if no user is logged in
+          disabled={isTyping || !user} 
         />
         <Button
           variant="ghost"

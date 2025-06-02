@@ -10,7 +10,7 @@ import { MoodTrackerView } from '@/components/views/MoodTrackerView';
 import { JournalView } from '@/components/views/JournalView';
 import { ExercisesView } from '@/components/views/ExercisesView';
 import { TherapistsView } from '@/components/views/TherapistsView';
-import { PremiumView } from '@/components/views/PremiumView';
+import { PremiumView } from '@/components/modals/PremiumView'; // Corrected path
 import { SettingsView } from '@/components/views/SettingsView';
 import { AuthModal } from '@/components/modals/AuthModal';
 import { CrisisModal } from '@/components/modals/CrisisModal';
@@ -22,6 +22,8 @@ import { toast } from "@/hooks/use-toast";
 import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
 
+const CHAT_MESSAGES_STORAGE_KEY_PREFIX = 'afyasync-chatMessages-';
+
 export default function AfyaSyncApp() {
   const { t } = useLocalization();
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -31,7 +33,7 @@ export default function AfyaSyncApp() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showCrisisModal, setShowCrisisModal] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [authLoading, setAuthLoading] = useState(true); // To handle initial auth state loading
+  const [authLoading, setAuthLoading] = useState(true); 
 
   const isMobileLayout = useIsMobile();
 
@@ -68,14 +70,13 @@ export default function AfyaSyncApp() {
           firstName = t('anonymousUser');
         }
         
-        // Check localStorage for existing profile to preserve joinDate
         const storedUserRaw = localStorage.getItem('afyasync-user');
         let joinDate = firebaseUser.metadata.creationTime || new Date().toISOString();
         if (storedUserRaw) {
           try {
             const storedUser: UserProfile = JSON.parse(storedUserRaw);
             if (storedUser.uid === firebaseUser.uid && storedUser.joinDate) {
-              joinDate = storedUser.joinDate; // Preserve original join date
+              joinDate = storedUser.joinDate; 
             }
           } catch (e) { console.error("Error parsing stored user for joinDate", e); }
         }
@@ -95,36 +96,47 @@ export default function AfyaSyncApp() {
          if (storedPremium) {
            setIsPremium(JSON.parse(storedPremium));
          } else {
-           setIsPremium(false); // Default to false if not set
+           setIsPremium(false); 
          }
       } else {
+        // User is signed out
+        const loggedOutUserUid = user?.uid; // Get UID before clearing user
+        if (loggedOutUserUid) {
+            localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${loggedOutUserUid}`);
+        }
         setUser(null);
         setIsPremium(false);
         localStorage.removeItem('afyasync-user');
         localStorage.removeItem('afyasync-isPremium');
-        setShowAuthModal(true); // Prompt for login if not authenticated
+        if (!authLoading) { // Only show auth modal if it's not the initial load check
+             setShowAuthModal(true); 
+        }
       }
       setAuthLoading(false);
     });
-    return () => unsubscribe(); // Cleanup subscription on unmount
-  }, [t]);
+    return () => unsubscribe();
+  }, [t, authLoading, user?.uid]); // Added user?.uid to dependencies for logout chat clearing
 
 
-  // This function is now primarily for mock/anonymous auth
   const handleAuthentication = (authenticatedUser: UserProfile) => {
     setUser(authenticatedUser);
     localStorage.setItem('afyasync-user', JSON.stringify(authenticatedUser));
     if (authenticatedUser.firstName !== t('anonymousUser')) {
         toast({ title: t('welcomeBack') + `, ${authenticatedUser.firstName}!` });
     }
-    setShowAuthModal(false); // Ensure modal closes
+    setShowAuthModal(false);
   };
 
   const handleLogout = async () => {
+    const loggedOutUserUid = user?.uid; // Capture UID before signOut
     try {
-      await signOut(auth); // Firebase sign out
-      // onAuthStateChanged will handle resetting user state and localStorage
-      setCurrentView('chat');
+      await signOut(auth); 
+      // onAuthStateChanged will handle resetting user state and most localStorage.
+      // We specifically clear the chat history for the logged-out user here.
+      if (loggedOutUserUid) {
+        localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${loggedOutUserUid}`);
+      }
+      setCurrentView('chat'); // Navigate to chat view after logout
       toast({ title: t('loggedOutSuccessfully') });
     } catch (error) {
       console.error("Logout error:", error);
@@ -156,8 +168,6 @@ export default function AfyaSyncApp() {
     if (authLoading) {
       return <div className="flex justify-center items-center h-full"><p>{t('loading') || 'Loading...'}</p></div>;
     }
-    // Allow settings view for anonymous to change language/theme
-    // For other views, if no user, ChatView shows a minimal state or asks to login
     if (!user && currentView !== 'settings') { 
       return <ChatView user={null} onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
     }
@@ -223,7 +233,7 @@ export default function AfyaSyncApp() {
       <AuthModal
         isOpen={showAuthModal && !user && !authLoading} 
         onOpenChange={setShowAuthModal}
-        onAuthenticated={handleAuthentication} // Used by mock/anonymous flows
+        onAuthenticated={handleAuthentication}
       />
       <CrisisModal
         isOpen={showCrisisModal}

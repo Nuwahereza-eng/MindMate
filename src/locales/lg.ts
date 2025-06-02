@@ -49,9 +49,16 @@ export const lg = {
   recaptchaError: "Ensobi ya reCAPTCHA. Gezaako nate.",
   recaptchaExpired: "reCAPTCHA eggwaako. Gezaako nate.",
   recaptchaNotReady: "reCAPTCHA tetennategeka. Linda akaseera.",
+  recaptchaNotReadyOrFailed: "reCAPTCHA tetennategeka oba yalemwa. Gezaako nate oba kakasa nti etegekeddwa bulungi.",
   enterPhoneNumberToVerify: "Kakasa {{phoneNumber}}",
   back: "Ddayo",
   user: "Omukozesa",
+  tryAgainLater: "Gezaako oluvannyuma.",
+  invalidPhoneNumberFormat: "Enkola ya namba y'essimu si ntuufu. Teekamu koodi y'eggwanga lyo (okugeza, +1234567890).",
+  invalidPhoneNumberFirebase: "Namba y'essimu tewandiikiddwa bulungi.",
+  tooManyRequestsFirebase: "Tuziyizza okusaba kwonna okuva ku kyuma kino olw'ebikolwa ebitategeerekeka. Gezaako oluvannyuma.",
+  invalidVerificationCodeFirebase: "Koodi y'okukakasa si ntuufu. Gezaako nate.",
+  codeExpiredFirebase: "Koodi y'okukakasa eggwaako. Saba endala.",
   // Chat
   chatPlaceholder: "Wandika obubaka bwo...",
   botGreeting: "Mbalamusizza! Nze MindMate, mukwano gwo akufaako mu by'obulamu bw'omwoyo. Otya leero?",
@@ -178,3 +185,5 @@ export const lg = {
   accessPremiumFeature: "Funa Eby'omuwendo",
   upgradeToAccess: "Olina okulongoosa okufuna {{feature}}.",
 };
+
+    

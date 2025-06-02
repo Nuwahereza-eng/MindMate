@@ -49,9 +49,16 @@ export const run = {
   recaptchaError: "Enshobe ya reCAPTCHA. Gezaho bundi.",
   recaptchaExpired: "reCAPTCHA yahwa. Gezaho bundi.",
   recaptchaNotReady: "reCAPTCHA teratebikanisibwe. Teereza akanya.",
+  recaptchaNotReadyOrFailed: "reCAPTCHA teratebikanisibwe nari yaremwa. Gezaho bundi nari hakikisha ngu etebikanisiibwe gye.",
   enterPhoneNumberToVerify: "Hakikisa {{phoneNumber}}",
   back: "Garuka",
   user: "Omukozesa",
+  tryAgainLater: "Gezaho bwanyima.",
+  invalidPhoneNumberFormat: "Enteeko y'enamba y'essimu terihikire. Taahyamu koodi y'ihanga ryawe (e.g., +1234567890).",
+  invalidPhoneNumberFirebase: "Enamba y'essimu terihandiikirwe gye.",
+  tooManyRequestsFirebase: "Twazibira okushaba kwona okuruga aha kyoma eki ahabw'ebikorwa ebitari bya buliijo. Gezaho bwanyima.",
+  invalidVerificationCodeFirebase: "Koodi y'okuhakikisa terihikire. Gezaho bundi.",
+  codeExpiredFirebase: "Koodi y'okuhakikisa yahwa. Shaba endiijo.",
   // Chat
   chatPlaceholder: "Handiika obutumwa bwaawe...",
   botGreeting: "Oraire ota! Ndi MindMate, omuhwezi waawe akufaaho aha by'oburungi bw'obwongo. Orire ota erizooba?",
@@ -178,3 +185,5 @@ export const run = {
   accessPremiumFeature: "Funa Eby'omuhendo",
   upgradeToAccess: "Oine kuhindura Premium okufuna {{feature}}.",
 };
+
+    

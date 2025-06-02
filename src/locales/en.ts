@@ -55,6 +55,11 @@ export const en = {
   user: "User", 
   anonymousUser: "Anonymous User", 
   tryAgainLater: "Please try again later.",
+  invalidPhoneNumberFormat: "Invalid phone number format. Please include your country code (e.g., +1234567890).",
+  invalidPhoneNumberFirebase: "The phone number is badly formatted.",
+  tooManyRequestsFirebase: "We have blocked all requests from this device due to unusual activity. Try again later.",
+  invalidVerificationCodeFirebase: "Invalid verification code. Please try again.",
+  codeExpiredFirebase: "The verification code has expired. Please request a new one.",
   // Chat
   chatPlaceholder: "Type your message...",
   botGreeting: "Hello! I'm MindMate, your compassionate mental health companion. How are you feeling today?",
@@ -187,3 +192,5 @@ export const en = {
   accessPremiumFeature: "Access Premium Feature",
   upgradeToAccess: "Please upgrade to Premium to access {{feature}}.",
 };
+
+    

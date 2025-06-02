@@ -49,9 +49,16 @@ export const sw = {
   recaptchaError: "Kosa la reCAPTCHA. Tafadhali jaribu tena.",
   recaptchaExpired: "reCAPTCHA imeisha muda. Tafadhali jaribu tena.",
   recaptchaNotReady: "reCAPTCHA haiko tayari. Tafadhali subiri kidogo.",
+  recaptchaNotReadyOrFailed: "reCAPTCHA haiko tayari au imeshindwa. Tafadhali jaribu tena au hakikisha imesanidiwa ipasavyo.",
   enterPhoneNumberToVerify: "Thibitisha {{phoneNumber}}",
   back: "Rudi Nyuma",
   user: "Mtumiaji",
+  tryAgainLater: "Tafadhali jaribu tena baadaye.",
+  invalidPhoneNumberFormat: "Umbizo la nambari ya simu si sahihi. Tafadhali jumuisha msimbo wa nchi yako (k.m., +1234567890).",
+  invalidPhoneNumberFirebase: "Nambari ya simu imeumbizwa vibaya.",
+  tooManyRequestsFirebase: "Tumezuia maombi yote kutoka kwa kifaa hiki kutokana na shughuli isiyo ya kawaida. Jaribu tena baadaye.",
+  invalidVerificationCodeFirebase: "Nambari ya uthibitishaji si sahihi. Tafadhali jaribu tena.",
+  codeExpiredFirebase: "Nambari ya uthibitishaji imeisha muda. Tafadhali omba mpya.",
   // Chat
   chatPlaceholder: "Andika ujumbe wako...",
   botGreeting: "Habari! Mimi ni MindMate, mwenzako mwenye huruma kwa afya ya akili. Unajisikiaje leo?",
@@ -178,3 +185,5 @@ export const sw = {
   accessPremiumFeature: "Fikia Kipengele cha Kulipia",
   upgradeToAccess: "Tafadhali boresha hadi Kulipia ili kufikia {{feature}}.",
 };
+
+    

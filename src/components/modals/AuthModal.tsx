@@ -56,9 +56,23 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false);
   const [isLoadingPhone, setIsLoadingPhone] = useState(false);
   const [currentTab, setCurrentTab] = useState<'login' | 'register'>('login');
+  const [isRecaptchaReady, setIsRecaptchaReady] = useState(false);
 
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
+
+  const goToStep = (newStep: AuthStep) => {
+    if (authStep === 'enterPhoneNumber' && newStep !== 'enterPhoneNumber') {
+        // Clear verifier if navigating away from phone step, so it re-initializes if we come back
+        if (recaptchaVerifierRef.current) {
+            recaptchaVerifierRef.current.clear();
+            recaptchaVerifierRef.current = null;
+        }
+        setIsRecaptchaReady(false);
+    }
+    setAuthStep(newStep);
+  };
+
 
   useEffect(() => {
     const cleanupRecaptcha = () => {
@@ -69,57 +83,66 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       if (recaptchaContainerRef.current) {
         recaptchaContainerRef.current.innerHTML = ''; 
       }
+      setIsRecaptchaReady(false);
     };
 
-    if (isOpen && authStep === 'enterPhoneNumber' && !recaptchaVerifierRef.current) {
-      if (recaptchaContainerRef.current) {
-        recaptchaContainerRef.current.innerHTML = ''; 
-        try {
-          const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
-            'size': 'invisible',
-            'callback': (response: any) => {
-              // console.log("reCAPTCHA solved (invisible callback):", response);
-            },
-            'expired-callback': () => {
-              toast({ title: t('recaptchaExpired'), description: t('tryAgainLater'), variant: 'destructive' });
-              cleanupRecaptcha();
-              setAuthStep('initial'); 
-            },
-            'error-callback': (error: any) => {
-                console.error("reCAPTCHA error-callback:", error);
-                toast({ title: t('recaptchaError'), description: (error.message || t('tryAgainLater')), variant: 'destructive' });
+    if (isOpen && authStep === 'enterPhoneNumber') {
+      if (!recaptchaVerifierRef.current) { // Only initialize if it's not already there or has been cleared
+        console.log("AuthModal: Attempting to initialize reCAPTCHA.");
+        if (recaptchaContainerRef.current) {
+          recaptchaContainerRef.current.innerHTML = ''; 
+          try {
+            const verifier = new RecaptchaVerifier(auth, recaptchaContainerRef.current, {
+              'size': 'invisible',
+              'callback': (response: any) => {
+                console.log("AuthModal: reCAPTCHA solved (invisible callback):", response);
+                setIsRecaptchaReady(true);
+              },
+              'expired-callback': () => {
+                toast({ title: t('recaptchaExpired'), description: t('tryAgainLater'), variant: 'destructive' });
                 cleanupRecaptcha();
-                setAuthStep('initial');
-              }
-          });
-          
-          verifier.render()
-            .then((widgetId) => {
-              // console.log("reCAPTCHA rendered, widgetId:", widgetId);
-              recaptchaVerifierRef.current = verifier;
-            })
-            .catch(renderError => {
-              console.error("RecaptchaVerifier.render() error:", renderError);
-              toast({title: t('recaptchaError'), description: (renderError.message || t('tryAgainLater')), variant: "destructive"});
-              cleanupRecaptcha();
-              setAuthStep("initial"); 
+                // Consider forcing a UI reset or a specific error message for UX
+              },
+              'error-callback': (error: any) => {
+                  console.error("AuthModal: reCAPTCHA error-callback:", error);
+                  toast({ title: t('recaptchaError'), description: (error.message || t('tryAgainLater')), variant: 'destructive' });
+                  cleanupRecaptcha();
+                }
             });
+            
+            verifier.render()
+              .then((widgetId) => {
+                console.log("AuthModal: reCAPTCHA rendered, widgetId:", widgetId);
+                recaptchaVerifierRef.current = verifier;
+                setIsRecaptchaReady(true); // For invisible, render success often means it's ready.
+              })
+              .catch(renderError => {
+                console.error("AuthModal: RecaptchaVerifier.render() error:", renderError);
+                toast({title: t('recaptchaError'), description: (renderError.message || t('tryAgainLater')), variant: "destructive"});
+                cleanupRecaptcha();
+              });
 
-        } catch (initError: any) {
-            console.error("Error initializing RecaptchaVerifier instance:", initError);
-            toast({title: t('recaptchaError'), description: (initError.message || t('tryAgainLater')), variant: "destructive"});
-            cleanupRecaptcha();
-            setAuthStep("initial");
+          } catch (initError: any) {
+              console.error("AuthModal: Error initializing RecaptchaVerifier instance:", initError);
+              toast({title: t('recaptchaError'), description: (initError.message || t('tryAgainLater')), variant: "destructive"});
+              cleanupRecaptcha();
+          }
+        } else {
+           console.warn("AuthModal: reCAPTCHA container ref not available when trying to initialize.");
+           // This case should ideally not happen if the DOM is structured correctly.
         }
-      } else {
-         console.warn("reCAPTCHA container ref not available when trying to initialize.");
-         setAuthStep("initial"); 
+      } else if (recaptchaVerifierRef.current && !isRecaptchaReady) {
+        // If verifier exists but not marked ready, it might be an old instance or an error occurred. Try to re-render or mark ready.
+        // This path needs careful consideration; for now, we assume if ref.current exists, it should become ready via callback or render().
+        // Forcing setIsRecaptchaReady(true) here if ref.current exists could be an option if callback isn't firing.
       }
     } else if (!isOpen || authStep !== 'enterPhoneNumber') {
       cleanupRecaptcha();
     }
 
     return () => {
+      // This cleanup runs when the component unmounts or dependencies change.
+      // It's crucial for preventing memory leaks or reCAPTCHA conflicts.
       cleanupRecaptcha();
     };
   }, [isOpen, authStep, t, auth]);
@@ -130,16 +153,17 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     setLastName('');
     setEmailOrPhone('');
     setPassword('');
-    setAuthStep('initial');
+    goToStep('initial');
     setPhoneNumberForVerification('');
     setVerificationCode('');
     setConfirmationResult(null);
     setIsLoadingGoogle(false);
     setIsLoadingPhone(false);
+    // isRecaptchaReady will be reset by goToStep or useEffect cleanup
   };
   
   const handleOpenChangeWithReset = (open: boolean) => {
-    if (!isLoadingGoogle && !isLoadingPhone) {
+    if (!isLoadingGoogle && !isLoadingPhone) { // Prevent closing if an auth operation is in progress
       if (!open) {
         resetFormStates(); 
       }
@@ -167,14 +191,13 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           return;
       }
       const formattedNum = formatPhoneNumber(emailOrPhone);
-      // Basic E.164 check. A more robust library might be needed for production.
       if (!formattedNum || !/^\+[1-9]\d{1,14}$/.test(formattedNum)) { 
-          toast({ title: t('invalidPhoneNumberFormat'), description: t('ensureCountryCode'), variant: "destructive"});
+          toast({ title: t('invalidPhoneNumberFormatE164'), description: t('ensureE164Format'), variant: "destructive"});
           return;
       }
       setPhoneNumberForVerification(formattedNum);
-      setAuthStep('enterPhoneNumber'); 
-    } else { // Mock Email/Password flow
+      goToStep('enterPhoneNumber'); 
+    } else { 
       let userEmail: string | null = emailOrPhone;
       let userPhone: string | null = null;
       let profileToAuth: UserProfile;
@@ -206,7 +229,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           { uid: storedUid, firstName: storedFirstName, lastName: storedLastName, email: userEmail, phone: userPhone, joinDate: storedJoinDate } :
           { uid: newUid, firstName: userEmail?.split('@')[0] || t('user'), lastName: '', email: userEmail, phone: userPhone, joinDate: new Date().toISOString() };
 
-      } else { // Register
+      } else { 
         profileToAuth = {
           uid: newUid,
           firstName: firstName || (userEmail?.split('@')[0] || t('user')),
@@ -222,45 +245,45 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   };
   
   const handleSendVerificationCode = async () => {
-    if (!recaptchaVerifierRef.current) {
-      toast({ title: t('recaptchaError'), description: t('recaptchaNotReadyOrFailed'), variant: "destructive" });
-      setAuthStep('initial'); 
-      setTimeout(() => {
-        if (isPhoneNumber(emailOrPhone)) { 
-          const formattedNum = formatPhoneNumber(emailOrPhone);
-           if (formattedNum && /^\+[1-9]\d{1,14}$/.test(formattedNum)) {
-             setPhoneNumberForVerification(formattedNum);
-             setAuthStep('enterPhoneNumber');
-           } else {
-             setEmailOrPhone(''); 
-           }
-        } else {
-             setEmailOrPhone('');
-        }
-      }, 100);
+    if (!recaptchaVerifierRef.current || !isRecaptchaReady) {
+      toast({ title: t('recaptchaError'), description: t('recaptchaNotReadyOrFailedShort'), variant: "destructive" });
+      // Attempt to re-init reCAPTCHA by resetting state
+      if(recaptchaVerifierRef.current) recaptchaVerifierRef.current.clear();
+      recaptchaVerifierRef.current = null;
+      setIsRecaptchaReady(false);
+      // setAuthStep('enterPhoneNumber'); // This will re-trigger the useEffect
       return;
     }
     setIsLoadingPhone(true);
+    console.log("AuthModal: Attempting to send verification code to", phoneNumberForVerification);
     try {
       const confirmation = await signInWithPhoneNumber(auth, phoneNumberForVerification, recaptchaVerifierRef.current);
       setConfirmationResult(confirmation);
-      setAuthStep('enterVerificationCode');
+      goToStep('enterVerificationCode');
       toast({ title: t('verificationCodeSent') });
     } catch (error: any) {
-      console.error("Error sending verification code:", error);
+      console.error("AuthModal: Error sending verification code:", error);
       let errorMessage = error.message || t('tryAgainLater');
+      let errorTitle = t('errorSendingCode');
+
       if (error.code === 'auth/invalid-phone-number') {
         errorMessage = t('invalidPhoneNumberFirebase');
       } else if (error.code === 'auth/too-many-requests') {
         errorMessage = t('tooManyRequestsFirebase');
+      } else if (error.code === 'auth/network-request-failed') {
+        errorTitle = t('networkError');
+        errorMessage = t('checkYourConnection');
       }
-      toast({ title: t('errorSendingCode'), description: errorMessage, variant: "destructive" });
       
+      toast({ title: errorTitle, description: errorMessage, variant: "destructive" });
+      
+      // Critical: Reset reCAPTCHA on failure to allow retry
       if (recaptchaVerifierRef.current) {
         recaptchaVerifierRef.current.clear(); 
         recaptchaVerifierRef.current = null;
       }
-      setAuthStep('enterPhoneNumber'); 
+      setIsRecaptchaReady(false);
+      goToStep('enterPhoneNumber'); // Go back to phone input step, this will re-trigger reCAPTCHA setup in useEffect
     } finally {
       setIsLoadingPhone(false);
     }
@@ -275,9 +298,9 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         const firebaseUser = userCredential.user;
         const profileFromPhoneAuth: UserProfile = {
             uid: firebaseUser.uid,
-            firstName: (currentTab === 'register' && firstName) ? firstName : (t('user')), 
+            firstName: (currentTab === 'register' && firstName) ? firstName : (firebaseUser.displayName || t('user')), 
             lastName: (currentTab === 'register' && lastName) ? lastName : '',
-            email: null, 
+            email: firebaseUser.email, 
             phone: firebaseUser.phoneNumber,
             joinDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
         };
@@ -288,7 +311,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
         throw new Error("User not found in credential after phone auth confirmation.");
       }
     } catch (error: any) {
-      console.error("Error verifying code:", error);
+      console.error("AuthModal: Error verifying code:", error);
       let errorMessage = error.message || t('tryAgainLater');
       if (error.code === 'auth/invalid-verification-code') {
          errorMessage = t('invalidVerificationCodeFirebase');
@@ -306,7 +329,6 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-      // onAuthStateChanged in AfyaSyncApp will handle the rest
       handleOpenChangeWithReset(false);
     } catch (error: any) {
       console.error("Google Sign-In Error:", error);
@@ -376,20 +398,18 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
           {isLoadingGoogle ? <Loader2 className="animate-spin" /> : t('continueGoogle')}
         </Button>
       </div>
-      <DialogFooter className="mt-4 sm:justify-center">
-        {/* Anonymous continue button removed */}
-      </DialogFooter>
+      <DialogFooter className="mt-4 sm:justify-center" />
     </Tabs>
   );
 
   const renderEnterPhoneNumberStep = () => (
     <>
       <DialogHeader className="mb-4">
-        <Button variant="ghost" size="icon" onClick={() => { setAuthStep('initial'); setEmailOrPhone(phoneNumberForVerification); }} className="absolute left-4 top-4">
+        <Button variant="ghost" size="icon" onClick={() => { goToStep('initial'); setEmailOrPhone(phoneNumberForVerification); }} className="absolute left-4 top-4">
            &larr; <span className="sr-only">{t('back')}</span>
         </Button>
         <DialogTitle className="text-center text-xl font-bold pt-8">{currentTab === 'register' ? t('signUpWithPhone') : t('signInWithPhone')}</DialogTitle>
-        <DialogDescription className="text-center">{t('enterPhoneNumberToVerify', {phoneNumber: phoneNumberForVerification})}</DialogDescription>
+        <DialogDescription className="text-center">{t('enterPhoneNumberToVerifyE164', {phoneNumber: phoneNumberForVerification})}</DialogDescription>
       </DialogHeader>
       {currentTab === 'register' && (
         <div className="space-y-1 mb-3 text-sm text-center">
@@ -399,9 +419,8 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
       )}
       <p className="mb-3 text-sm text-center"><span className="font-medium">{t('phoneNumberLabel')}:</span> {phoneNumberForVerification}</p>
       <div id="recaptcha-container-phone" ref={recaptchaContainerRef} className="my-4">
-        {/* Invisible reCAPTCHA anchors here. It might make itself visible if needed. */}
       </div>
-      <Button onClick={handleSendVerificationCode} className="w-full" disabled={isLoadingPhone}>
+      <Button onClick={handleSendVerificationCode} className="w-full" disabled={isLoadingPhone || !isRecaptchaReady}>
         {isLoadingPhone ? <Loader2 className="animate-spin" /> : t('sendVerificationCode')}
       </Button>
     </>
@@ -410,7 +429,7 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
   const renderEnterVerificationCodeStep = () => (
     <>
        <DialogHeader className="mb-4">
-        <Button variant="ghost" size="icon" onClick={() => {setAuthStep('enterPhoneNumber'); setVerificationCode(''); }} className="absolute left-4 top-4">
+        <Button variant="ghost" size="icon" onClick={() => {goToStep('enterPhoneNumber'); setVerificationCode(''); }} className="absolute left-4 top-4">
             &larr; <span className="sr-only">{t('back')}</span>
         </Button>
         <DialogTitle className="text-center text-xl font-bold pt-8">{t('enterVerificationCodeTitle')}</DialogTitle>
@@ -446,3 +465,4 @@ export function AuthModal({ isOpen, onOpenChange, onAuthenticated }: AuthModalPr
     </Dialog>
   );
 }
+

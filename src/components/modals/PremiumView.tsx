@@ -4,25 +4,29 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, Shield } from 'lucide-react'; // Using Shield for premium icon
+import { CheckCircle, Shield, ArrowLeft } from 'lucide-react';
 import { useLocalization } from '@/context/LocalizationContext';
 import { toast } from "@/hooks/use-toast"
 
 interface PremiumViewProps {
   isPremium: boolean;
   onSetPremium: (isPremium: boolean) => void;
+  onNavigateBack?: () => void; // Optional: for navigating back after upgrade
 }
 
-export function PremiumView({ isPremium, onSetPremium }: PremiumViewProps) {
+export function PremiumView({ isPremium, onSetPremium, onNavigateBack }: PremiumViewProps) {
   const { t } = useLocalization();
 
   const handleUpgrade = () => {
     onSetPremium(true);
     toast({
       title: t('premiumUpgradeSuccess'),
-      description: t('appName') + " " + t('premiumMember'), // appName will be MindMate
+      description: t('appName') + " " + t('premiumMember'),
       variant: "default", 
     });
+    if (onNavigateBack) {
+      onNavigateBack();
+    }
   };
 
   const freePlanFeatures = (t('freePlanFeatures') as unknown as string[]).map(feat => ({ text: feat, included: true }));
@@ -33,7 +37,15 @@ export function PremiumView({ isPremium, onSetPremium }: PremiumViewProps) {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      <h1 className="text-2xl font-semibold">{t('premiumMembershipTitle')}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">{t('premiumMembershipTitle')}</h1>
+        {onNavigateBack && (
+          <Button variant="ghost" onClick={onNavigateBack} size="icon">
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+        )}
+      </div>
+
 
       <div className="grid md:grid-cols-2 gap-6 items-stretch">
         <Card className="flex flex-col">
@@ -101,3 +113,4 @@ export function PremiumView({ isPremium, onSetPremium }: PremiumViewProps) {
     </div>
   );
 }
+

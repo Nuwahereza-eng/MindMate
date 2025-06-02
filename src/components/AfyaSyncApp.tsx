@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { MessageCircle, Settings, Heart, Zap, BookOpen, ShieldAlert, Users, Award } from 'lucide-react';
+import { MessageCircle, Settings, Heart, Zap, BookOpen, ShieldAlert, Users, Award, LogOut } from 'lucide-react'; // Added LogOut
 import { AppHeader } from '@/components/layout/AppHeader';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { ChatView } from '@/components/views/ChatView';
@@ -23,6 +23,7 @@ import { auth } from '@/lib/firebase';
 import { onAuthStateChanged, signOut, type User as FirebaseUser } from 'firebase/auth';
 
 const CHAT_MESSAGES_STORAGE_KEY_PREFIX = 'afyasync-chatMessages-';
+const USER_PROFILE_STORAGE_KEY_PREFIX = 'afyasync-userProfile-'; // For storing full profile with names
 
 export default function AfyaSyncApp() {
   const { t } = useLocalization();
@@ -56,119 +57,141 @@ export default function AfyaSyncApp() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser: FirebaseUser | null) => {
       if (firebaseUser) {
-        let firstName = '';
-        let lastName = '';
-        if (firebaseUser.displayName) {
-          const nameParts = firebaseUser.displayName.split(' ');
-          firstName = nameParts[0];
-          if (nameParts.length > 1) {
-            lastName = nameParts.slice(1).join(' ');
-          }
-        } else if (firebaseUser.email) {
-          firstName = firebaseUser.email.split('@')[0];
-        } else {
-          firstName = t('anonymousUser');
-        }
-        
-        const storedUserRaw = localStorage.getItem('afyasync-user');
-        let joinDate = firebaseUser.metadata.creationTime || new Date().toISOString();
-        if (storedUserRaw) {
+        // Check if a full profile was already created by AuthModal (e.g., after phone/mock auth)
+        const userProfileStorageKey = `${USER_PROFILE_STORAGE_KEY_PREFIX}${firebaseUser.uid}`;
+        const storedFullProfileRaw = localStorage.getItem(userProfileStorageKey);
+
+        if (storedFullProfileRaw) {
           try {
-            const storedUser: UserProfile = JSON.parse(storedUserRaw);
-            if (storedUser.uid === firebaseUser.uid && storedUser.joinDate) {
-              joinDate = storedUser.joinDate; 
+            const storedProfile: UserProfile = JSON.parse(storedFullProfileRaw);
+            setUser(storedProfile);
+            // Premium status check after setting user
+            const storedPremium = localStorage.getItem(`afyasync-isPremium-${firebaseUser.uid}`);
+            setIsPremium(storedPremium ? JSON.parse(storedPremium) : false);
+
+          } catch (e) { console.error("Error parsing stored full user profile", e); }
+        } else {
+          // Create profile from Firebase user (likely Google sign-in or session persistence)
+          let firstName = '';
+          let lastName = '';
+          if (firebaseUser.displayName) {
+            const nameParts = firebaseUser.displayName.split(' ');
+            firstName = nameParts[0];
+            if (nameParts.length > 1) {
+              lastName = nameParts.slice(1).join(' ');
             }
-          } catch (e) { console.error("Error parsing stored user for joinDate", e); }
+          } else if (firebaseUser.email) {
+            firstName = firebaseUser.email.split('@')[0];
+          } else if (firebaseUser.phoneNumber) {
+            firstName = t('user'); // Generic for phone-only if names weren't captured earlier
+          } else {
+            firstName = t('anonymousUser');
+          }
+          
+          const userProfile: UserProfile = {
+            uid: firebaseUser.uid,
+            firstName: firstName,
+            lastName: lastName,
+            email: firebaseUser.email,
+            phone: firebaseUser.phoneNumber,
+            joinDate: firebaseUser.metadata.creationTime || new Date().toISOString(),
+          };
+          setUser(userProfile);
+          localStorage.setItem(userProfileStorageKey, JSON.stringify(userProfile)); // Save this new profile
+          // Premium status check
+          const storedPremium = localStorage.getItem(`afyasync-isPremium-${firebaseUser.uid}`);
+          setIsPremium(storedPremium ? JSON.parse(storedPremium) : false);
         }
-
-        const userProfile: UserProfile = {
-          uid: firebaseUser.uid,
-          firstName: firstName,
-          lastName: lastName,
-          email: firebaseUser.email,
-          phone: firebaseUser.phoneNumber,
-          joinDate: joinDate,
-        };
-        setUser(userProfile);
-        localStorage.setItem('afyasync-user', JSON.stringify(userProfile));
-
-        const storedPremium = localStorage.getItem('afyasync-isPremium');
-         if (storedPremium) {
-           setIsPremium(JSON.parse(storedPremium));
-         } else {
-           setIsPremium(false); 
-         }
-      } else {
-        // User is signed out
-        const uidOfLoggedOutUser = user?.uid; // Get UID of the user who was logged in
-                                            // This relies on `user` state from the previous render.
+      } else { // User is signed out
+        const uidOfLoggedOutUser = user?.uid; 
         
         setUser(null);
         setIsPremium(false);
+        if (uidOfLoggedOutUser) {
+            localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${uidOfLoggedOutUser}`);
+            localStorage.removeItem(`${USER_PROFILE_STORAGE_KEY_PREFIX}${uidOfLoggedOutUser}`);
+            localStorage.removeItem(`afyasync-isPremium-${uidOfLoggedOutUser}`);
+        }
+        // Also clear generic keys if they exist from older versions
         localStorage.removeItem('afyasync-user');
         localStorage.removeItem('afyasync-isPremium');
-        if (uidOfLoggedOutUser) { // If there was a logged-in user, clear their chat
-            localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${uidOfLoggedOutUser}`);
-        }
         
-        if (!authLoading) { 
+        if (!authLoading && currentView !== 'settings') { // Don't show auth modal if already on settings or loading
              setShowAuthModal(true); 
         }
       }
       setAuthLoading(false);
     });
     return () => unsubscribe();
-  }, [t, authLoading]); // Removed user?.uid from dependencies
+  }, [t, authLoading, currentView]);
 
 
   const handleAuthentication = (authenticatedUser: UserProfile) => {
     setUser(authenticatedUser);
-    localStorage.setItem('afyasync-user', JSON.stringify(authenticatedUser));
+    // Store the full profile with names, keyed by UID
+    localStorage.setItem(`${USER_PROFILE_STORAGE_KEY_PREFIX}${authenticatedUser.uid}`, JSON.stringify(authenticatedUser));
+    
+    // If it's an anonymous user from the modal, their UID is `anon-<timestamp>`
+    // If it's mock email/pass, their UID is `mock-<timestamp>`
+    // If it's phone auth, their UID is the Firebase UID
+    // This ensures onAuthStateChanged can pick up the detailed profile.
+
     if (authenticatedUser.firstName !== t('anonymousUser')) {
         toast({ title: t('welcomeBack') + `, ${authenticatedUser.firstName}!` });
     }
-    setShowAuthModal(false);
+    setShowAuthModal(false); // Close modal after onAuthenticated is called
   };
 
   const handleLogout = async () => {
+    const uidOfCurrentUser = user?.uid; // Capture UID before signing out
     try {
       await signOut(auth); 
-      // onAuthStateChanged will handle resetting user state and all relevant localStorage items.
-      setCurrentView('chat'); // Navigate to chat view after logout
+      // onAuthStateChanged will handle resetting user state and clearing UID-specific localStorage
+      setCurrentView('chat');
       toast({ title: t('loggedOutSuccessfully') });
     } catch (error) {
       console.error("Logout error:", error);
-      toast({ title: "Logout failed", description: (error as Error).message, variant: "destructive" });
+      toast({ title: t('logoutFailed'), description: (error as Error).message, variant: "destructive" });
     }
   };
 
   const handleSetPremium = (premiumStatus: boolean) => {
     setIsPremium(premiumStatus);
-    localStorage.setItem('afyasync-isPremium', JSON.stringify(premiumStatus));
+    if (user?.uid) {
+      localStorage.setItem(`afyasync-isPremium-${user.uid}`, JSON.stringify(premiumStatus));
+    }
   };
 
-  const handleNavigate = (view: string) => {
-    const navItem = NAV_ITEMS.find(item => item.view === view || (item.onClickAction && item.id === view) );
-    if (navItem && navItem.view) {
-      if (navItem.premium && !isPremium && user && user.firstName !== t('anonymousUser')) {
-        setCurrentView('premium');
-        toast({ title: t('accessPremiumFeature'), description: t('upgradeToAccess', {feature: t(navItem.labelKey) }) });
-      } else {
-        setCurrentView(navItem.view);
-      }
+  const handleNavigate = (viewId: string) => {
+    const navItem = NAV_ITEMS.find(item => item.id === viewId);
+    if (!navItem) return;
+
+    if (navItem.onClickAction) {
+        navItem.onClickAction();
+        // Keep current view if it's just an action like opening crisis modal
+    } else if (navItem.view) {
+        if (navItem.premium && !isPremium && user && user.firstName !== t('anonymousUser')) {
+            setCurrentView('premium');
+            toast({ title: t('accessPremiumFeature'), description: t('upgradeToAccess', {feature: t(navItem.labelKey) }) });
+        } else {
+            setCurrentView(navItem.view);
+        }
     }
     if (isMobileLayout) setIsMobileMenuOpen(false);
   };
   
-  const currentViewNavItem = useMemo(() => NAV_ITEMS.find(item => item.view === currentView), [currentView, NAV_ITEMS, t]); 
+  const currentViewNavItem = useMemo(() => NAV_ITEMS.find(item => item.view === currentView || item.id === currentView), [currentView, NAV_ITEMS, t]); 
 
   const renderView = () => {
-    if (authLoading) {
+    if (authLoading && !user) { // Show loading only if no user yet and auth is processing
       return <div className="flex justify-center items-center h-full"><p>{t('loading') || 'Loading...'}</p></div>;
     }
-    if (!user && currentView !== 'settings') { 
-      return <ChatView user={null} onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
+    // If not loading and no user, and not settings, show AuthModal (or ChatView with prompt)
+    if (!user && !authLoading && currentView !== 'settings' && !showAuthModal) {
+        // setShowAuthModal(true); // This can cause loops if AuthModal closes itself.
+        // Better to let ChatView handle its display when no user.
     }
+
 
     switch (currentView) {
       case 'chat': return <ChatView user={user} onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
@@ -176,7 +199,7 @@ export default function AfyaSyncApp() {
       case 'journal': return <JournalView />;
       case 'exercises': return <ExercisesView isPremium={isPremium} onNavigateToPremium={() => handleNavigate('premium')} />;
       case 'therapists': return <TherapistsView />;
-      case 'premium': return <PremiumView isPremium={isPremium} onSetPremium={handleSetPremium} />;
+      case 'premium': return <PremiumView isPremium={isPremium} onSetPremium={handleSetPremium} onNavigateBack={() => setCurrentView('chat')} />;
       case 'settings': return <SettingsView />;
       default: return <ChatView user={user} onTriggerCrisisModal={() => setShowCrisisModal(true)} />;
     }
@@ -205,7 +228,8 @@ export default function AfyaSyncApp() {
         {isMobileLayout && (
            <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
             <SheetTrigger asChild>
-              <div />
+              {/* Dummy trigger, actual trigger is in AppHeader */}
+              <div /> 
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64 sm:w-72 bg-sidebar text-sidebar-foreground" title={t('appName')}>
                {sidebarComponent}
@@ -218,7 +242,7 @@ export default function AfyaSyncApp() {
             isPremium={isPremium}
             currentViewNavItem={currentViewNavItem}
             onToggleMobileMenu={() => setIsMobileMenuOpen(prev => !prev)}
-            onSignIn={() => setShowAuthModal(true)}
+            onSignIn={() => { setShowAuthModal(true); }}
             onLogout={handleLogout}
             isMobileLayout={isMobileLayout}
             authLoading={authLoading}
@@ -229,7 +253,7 @@ export default function AfyaSyncApp() {
       </div>
 
       <AuthModal
-        isOpen={showAuthModal && !user && !authLoading} 
+        isOpen={showAuthModal && (!user || (user.firstName === t('anonymousUser') && user.uid.startsWith('anon-'))) && !authLoading} 
         onOpenChange={setShowAuthModal}
         onAuthenticated={handleAuthentication}
       />

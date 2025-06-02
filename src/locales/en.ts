@@ -49,9 +49,12 @@ export const en = {
   recaptchaError: "reCAPTCHA error. Please try again.",
   recaptchaExpired: "reCAPTCHA expired. Please try again.",
   recaptchaNotReady: "reCAPTCHA not ready. Please wait a moment.",
+  recaptchaNotReadyOrFailed: "reCAPTCHA not ready or failed. Please try again or ensure it's correctly configured.",
   enterPhoneNumberToVerify: "Verify {{phoneNumber}}",
   back: "Back",
-  user: "User", // Generic name for phone-only users if names aren't captured
+  user: "User", 
+  anonymousUser: "Anonymous User", 
+  tryAgainLater: "Please try again later.",
   // Chat
   chatPlaceholder: "Type your message...",
   botGreeting: "Hello! I'm MindMate, your compassionate mental health companion. How are you feeling today?",
@@ -178,7 +181,6 @@ export const en = {
   error: "An error occurred. Please try again.",
   submit: "Submit",
   close: "Close",
-  anonymousUser: "Anonymous User",
   freeMember: "Free Member",
   premiumMember: "Premium Member",
   theme: "Theme",

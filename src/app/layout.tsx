@@ -13,6 +13,9 @@ const geistMono = GeistMono;
 export const metadata: Metadata = {
   title: 'MindMate - Your Mental Wellness Companion',
   description: 'AI-powered mental health support, mood tracking, journaling, and more.',
+  icons: {
+    icon: { url: '/mindmate-favicon.svg', type: 'image/svg+xml' },
+  },
 };
 
 export default function RootLayout({

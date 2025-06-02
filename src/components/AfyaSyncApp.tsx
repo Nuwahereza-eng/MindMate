@@ -10,7 +10,7 @@ import { MoodTrackerView } from '@/components/views/MoodTrackerView';
 import { JournalView } from '@/components/views/JournalView';
 import { ExercisesView } from '@/components/views/ExercisesView';
 import { TherapistsView } from '@/components/views/TherapistsView';
-import { PremiumView } from '@/components/modals/PremiumView'; // Corrected path
+import { PremiumView } from '@/components/modals/PremiumView';
 import { SettingsView } from '@/components/views/SettingsView';
 import { AuthModal } from '@/components/modals/AuthModal';
 import { CrisisModal } from '@/components/modals/CrisisModal';
@@ -100,22 +100,25 @@ export default function AfyaSyncApp() {
          }
       } else {
         // User is signed out
-        const loggedOutUserUid = user?.uid; // Get UID before clearing user
-        if (loggedOutUserUid) {
-            localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${loggedOutUserUid}`);
-        }
+        const uidOfLoggedOutUser = user?.uid; // Get UID of the user who was logged in
+                                            // This relies on `user` state from the previous render.
+        
         setUser(null);
         setIsPremium(false);
         localStorage.removeItem('afyasync-user');
         localStorage.removeItem('afyasync-isPremium');
-        if (!authLoading) { // Only show auth modal if it's not the initial load check
+        if (uidOfLoggedOutUser) { // If there was a logged-in user, clear their chat
+            localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${uidOfLoggedOutUser}`);
+        }
+        
+        if (!authLoading) { 
              setShowAuthModal(true); 
         }
       }
       setAuthLoading(false);
     });
     return () => unsubscribe();
-  }, [t, authLoading, user?.uid]); // Added user?.uid to dependencies for logout chat clearing
+  }, [t, authLoading]); // Removed user?.uid from dependencies
 
 
   const handleAuthentication = (authenticatedUser: UserProfile) => {
@@ -128,14 +131,9 @@ export default function AfyaSyncApp() {
   };
 
   const handleLogout = async () => {
-    const loggedOutUserUid = user?.uid; // Capture UID before signOut
     try {
       await signOut(auth); 
-      // onAuthStateChanged will handle resetting user state and most localStorage.
-      // We specifically clear the chat history for the logged-out user here.
-      if (loggedOutUserUid) {
-        localStorage.removeItem(`${CHAT_MESSAGES_STORAGE_KEY_PREFIX}${loggedOutUserUid}`);
-      }
+      // onAuthStateChanged will handle resetting user state and all relevant localStorage items.
       setCurrentView('chat'); // Navigate to chat view after logout
       toast({ title: t('loggedOutSuccessfully') });
     } catch (error) {

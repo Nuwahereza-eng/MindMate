@@ -44,7 +44,7 @@ export function AppSidebar({
           <ul className="space-y-1">
             {navItems.map((item) => {
               const Icon = item.icon;
-              const isLocked = item.premium && !isPremium && user && user.name !== t('anonymousUser'); 
+              const isLocked = item.premium && !isPremium && user && user.firstName !== t('anonymousUser'); 
               
               return (
                 <li key={item.id}>
@@ -54,8 +54,6 @@ export function AppSidebar({
                     onClick={() => {
                       if (item.onClickAction) {
                         item.onClickAction();
-                        // Call onNavigate with currentView to ensure mobile menu closes without changing view.
-                        // This relies on onNavigate in AfyaSyncApp to handle this gracefully.
                         onNavigate(currentView); 
                       } else if (item.view) {
                         if (isLocked) {
